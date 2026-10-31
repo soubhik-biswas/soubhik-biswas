@@ -36,8 +36,8 @@ for image in re.findall(r'(?:src|srcset)="(\./[^"?]+)', readme):
     assert (ROOT / image).is_file(), f'Broken README image {image}'
 assert readme.count('<picture>') == 5
 assert 'https://www.linkedin.com/in/biswas-soubhik/' in readme
-for project in re.findall(r'https://github.com/SoubhikBiswas-gitHub/([\w-]+)\)', readme):
-    if project != 'SoubhikBiswas-gitHub':
+for project in re.findall(r'https://github.com/soubhik-biswas/([\w-]+)\)', readme):
+    if project != 'soubhik-biswas':
         assert project in {r['name'] for r in data['repos']}, f'Project is not public: {project}'
 spec = importlib.util.spec_from_file_location('refresh', ROOT / 'scripts/update-data.py')
 module = importlib.util.module_from_spec(spec)

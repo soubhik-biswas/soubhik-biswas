@@ -221,7 +221,7 @@ def connect(mobile=False):
         right+=rect(26,y,427,62,'#151d2d','#39425d',12)+text(43,y+23,label,11,CYAN,True)+text(43,y+47,value,16)
         right+=f'<g class="arrow">'+text(417,y+39,'↗',24,VIOLET)+'</g>'
     body=left+group(0,403,right) if mobile else left+group(500,0,right)
-    svg('connect-mobile.svg' if mobile else 'connect.svg',500 if mobile else 1000,804 if mobile else 420,'Connect with Soubhik Biswas','LinkedIn: biswas-soubhik. Email: sbiswas773@gmail.com. GitHub: SoubhikBiswas-gitHub. Use the text links below the illustration to connect.',body)
+    svg('connect-mobile.svg' if mobile else 'connect.svg',500 if mobile else 1000,804 if mobile else 420,'Connect with Soubhik Biswas','LinkedIn: biswas-soubhik. Email: sbiswas773@gmail.com. GitHub: soubhik-biswas. Use the text links below the illustration to connect.',body)
 
 
 def city():

@@ -1,52 +1,52 @@
 {
   "updated": "2026-10-31",
-  "source": "https://github.com/SoubhikBiswas-gitHub",
+  "source": "https://github.com/soubhik-biswas",
   "repos": [
     {
       "name": "awaketab",
-      "url": "https://github.com/SoubhikBiswas-gitHub/awaketab",
+      "url": "https://github.com/soubhik-biswas/awaketab",
       "stars": 1,
       "language": "TypeScript"
     },
     {
       "name": "bucketpeek",
-      "url": "https://github.com/SoubhikBiswas-gitHub/bucketpeek",
+      "url": "https://github.com/soubhik-biswas/bucketpeek",
       "stars": 0,
       "language": "TypeScript"
     },
     {
       "name": "dom-scanner-pro-site",
-      "url": "https://github.com/SoubhikBiswas-gitHub/dom-scanner-pro-site",
+      "url": "https://github.com/soubhik-biswas/dom-scanner-pro-site",
       "stars": 0,
       "language": "HTML"
     },
     {
       "name": "oibuddy-vscode",
-      "url": "https://github.com/SoubhikBiswas-gitHub/oibuddy-vscode",
+      "url": "https://github.com/soubhik-biswas/oibuddy-vscode",
       "stars": 0,
       "language": null
     },
     {
       "name": "passlore",
-      "url": "https://github.com/SoubhikBiswas-gitHub/passlore",
+      "url": "https://github.com/soubhik-biswas/passlore",
       "stars": 0,
       "language": "TypeScript"
     },
     {
       "name": "prismwink",
-      "url": "https://github.com/SoubhikBiswas-gitHub/prismwink",
+      "url": "https://github.com/soubhik-biswas/prismwink",
       "stars": 0,
       "language": "TypeScript"
     },
     {
       "name": "sealpane",
-      "url": "https://github.com/SoubhikBiswas-gitHub/sealpane",
+      "url": "https://github.com/soubhik-biswas/sealpane",
       "stars": 0,
       "language": "TypeScript"
     },
     {
       "name": "sealpane-server",
-      "url": "https://github.com/SoubhikBiswas-gitHub/sealpane-server",
+      "url": "https://github.com/soubhik-biswas/sealpane-server",
       "stars": 0,
       "language": "TypeScript"
     }
