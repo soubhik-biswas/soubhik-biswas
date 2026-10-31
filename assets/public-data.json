@@ -49,6 +49,12 @@
       "url": "https://github.com/soubhik-biswas/sealpane-server",
       "stars": 0,
       "language": "TypeScript"
+    },
+    {
+      "name": "soubhik-biswas",
+      "url": "https://github.com/soubhik-biswas/soubhik-biswas",
+      "stars": 1,
+      "language": "Python"
     }
   ],
   "days": [
@@ -1905,8 +1911,8 @@
     {
       "date": "2026-10-31",
       "level": 2,
-      "count": 99
+      "count": 101
     }
   ],
-  "contributions": 1530
+  "contributions": 1532
 }

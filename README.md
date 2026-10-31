@@ -12,8 +12,8 @@ I lead frontend engineering at **Deccan AI**, working on frontend architecture, 
 [LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Email](mailto:sbiswas773@gmail.com) · [Public projects](https://github.com/soubhik-biswas?tab=repositories)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=6037be16a2ae" />
-  <img src="./about-life.svg?v=0f05d69f9cd1" width="100%" alt="What I build: frontend architecture, design systems, and complex product interfaces. Outside work: building new things, music, and learning." />
+  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=af147ca12075" />
+  <img src="./about-life.svg?v=ca79343b243c" width="100%" alt="What I build: frontend architecture, design systems, and complex product interfaces. Outside work: building new things, music, and learning." />
 </picture>
 
 ## Frontend architecture & product engineering
@@ -35,8 +35,8 @@ I regularly turn new ideas into side projects. I enjoy learning through building
 **Core stack:** React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML · CSS · Tailwind CSS · Git
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./id-dashboard-mobile.svg?v=bc9f8294b290" />
-  <img src="./id-dashboard.svg?v=cd409d4faf89" width="100%" alt="Soubhik Biswas identity card and dated public GitHub activity dashboard. Statistics are refreshed daily." />
+  <source media="(max-width: 600px)" srcset="./id-dashboard-mobile.svg?v=1f92cfcc138c" />
+  <img src="./id-dashboard.svg?v=47e0b4f7841b" width="100%" alt="Soubhik Biswas identity card and dated public GitHub activity dashboard. Statistics are refreshed daily." />
 </picture>
 
 ## Selected public projects
@@ -51,7 +51,7 @@ I regularly turn new ideas into side projects. I enjoy learning through building
 
 ## GitHub contribution city
 
-<img src="./contribution-city.svg?v=c489427dd73f" width="100%" alt="Soubhik Biswas's three-dimensional contribution city, built from the public GitHub contribution calendar and refreshed daily." />
+<img src="./contribution-city.svg?v=242d97a7f111" width="100%" alt="Soubhik Biswas's three-dimensional contribution city, built from the public GitHub contribution calendar and refreshed daily." />
 
 The city and dashboard use publicly visible GitHub activity. They are dated snapshots, refreshed daily by the [portfolio workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml).
 
