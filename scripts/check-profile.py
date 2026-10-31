@@ -35,6 +35,8 @@ readme = (ROOT / 'README.md').read_text()
 for image in re.findall(r'(?:src|srcset)="(\./[^"?]+)', readme):
     assert (ROOT / image).is_file(), f'Broken README image {image}'
 assert readme.count('<picture>') == 5
+assert 'mailto:' not in readme
+assert 'email' not in json.loads((ROOT / 'profile.json').read_text())
 assert 'https://www.linkedin.com/in/biswas-soubhik/' in readme
 for project in re.findall(r'https://github.com/soubhik-biswas/([\w-]+)\)', readme):
     if project != 'soubhik-biswas':

@@ -216,12 +216,12 @@ def connect(mobile=False):
     left=text(26,38,'06 / LET’S CONNECT',14,PINK,True)
     left+=image('assets/pointing.png',72,55,345,357)
     right=text(26,75,'What are you building?',29)+text(26,113,'I’d like to hear about it.',27)
-    for i,(label,value) in enumerate([('LINKEDIN','biswas-soubhik'),('EMAIL',PROFILE['email']),('GITHUB',PROFILE['username'])]):
+    for i,(label,value) in enumerate([('LINKEDIN','biswas-soubhik'),('GITHUB',PROFILE['username']),('PROJECTS','Public repositories')]):
         y=148+i*75
         right+=rect(26,y,427,62,'#151d2d','#39425d',12)+text(43,y+23,label,11,CYAN,True)+text(43,y+47,value,16)
         right+=f'<g class="arrow">'+text(417,y+39,'↗',24,VIOLET)+'</g>'
     body=left+group(0,403,right) if mobile else left+group(500,0,right)
-    svg('connect-mobile.svg' if mobile else 'connect.svg',500 if mobile else 1000,804 if mobile else 420,'Connect with Soubhik Biswas','LinkedIn: biswas-soubhik. Email: sbiswas773@gmail.com. GitHub: soubhik-biswas. Use the text links below the illustration to connect.',body)
+    svg('connect-mobile.svg' if mobile else 'connect.svg',500 if mobile else 1000,804 if mobile else 420,'Connect with Soubhik Biswas','LinkedIn: biswas-soubhik. GitHub: soubhik-biswas. Use the text links below the illustration to connect.',body)
 
 
 def city():

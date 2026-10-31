@@ -35,7 +35,7 @@ jobs:
       - name: Save updated portfolio
         run: |
           git config user.name 'Soubhik Biswas'
-          git config user.email 'sbiswas773@gmail.com'
+          git config user.email '54506603+soubhik-biswas@users.noreply.github.com'
           git add assets/public-data.json README.md ./*.svg
           if ! git diff --cached --quiet; then
             git commit -m 'Refresh public portfolio activity'

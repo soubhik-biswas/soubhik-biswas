@@ -9,11 +9,11 @@ I lead frontend engineering at **Deccan AI**, working on frontend architecture, 
   <img src="./hero.svg?v=e6be1b84a453" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. Frontend architecture, music, and building new things." />
 </picture>
 
-[LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Email](mailto:sbiswas773@gmail.com) · [Public projects](https://github.com/soubhik-biswas?tab=repositories)
+[LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Public projects](https://github.com/soubhik-biswas?tab=repositories)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=af147ca12075" />
-  <img src="./about-life.svg?v=ca79343b243c" width="100%" alt="What I build: frontend architecture, design systems, and complex product interfaces. Outside work: building new things, music, and learning." />
+  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=6037be16a2ae" />
+  <img src="./about-life.svg?v=0f05d69f9cd1" width="100%" alt="What I build: frontend architecture, design systems, and complex product interfaces. Outside work: building new things, music, and learning." />
 </picture>
 
 ## Frontend architecture & product engineering
@@ -56,8 +56,8 @@ I regularly turn new ideas into side projects. I enjoy learning through building
 The city and dashboard use publicly visible GitHub activity. They are dated snapshots, refreshed daily by the [portfolio workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml).
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./connect-mobile.svg?v=83774bfdb1f3" />
-  <img src="./connect.svg?v=383bd5ec67b7" width="100%" alt="Connect with Soubhik Biswas about frontend architecture, React design systems, and useful product ideas. Links below." />
+  <source media="(max-width: 600px)" srcset="./connect-mobile.svg?v=6c06bb6c88da" />
+  <img src="./connect.svg?v=7f8754f259ef" width="100%" alt="Connect with Soubhik Biswas about frontend architecture, React design systems, and useful product ideas. Links below." />
 </picture>
 
 ## Connect
@@ -65,7 +65,6 @@ The city and dashboard use publicly visible GitHub activity. They are dated snap
 I welcome conversations about frontend architecture, design systems, reusable frontend foundations, and complex product interfaces.
 
 - **LinkedIn:** [Soubhik Biswas](https://www.linkedin.com/in/biswas-soubhik/)
-- **Email:** [sbiswas773@gmail.com](mailto:sbiswas773@gmail.com)
 - **GitHub:** [soubhik-biswas](https://github.com/soubhik-biswas)
 
 <details>
