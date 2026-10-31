@@ -11,8 +11,8 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 [LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Public repositories](https://github.com/soubhik-biswas?tab=repositories)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=96c4cbb16f32" />
-  <img src="./about-life.svg?v=c8a4a7b19ba1" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
+  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=b4d104635522" />
+  <img src="./about-life.svg?v=ffefcd1cfd60" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
 </picture>
 
 My work connects reusable React components, configurable themes and interactive documentation with the details of each product. That includes shared validation, coding interfaces, authentication, browser extensions and resumable uploads.
@@ -67,11 +67,11 @@ React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML ·
 [![Public repository stars](https://img.shields.io/github/stars/soubhik-biswas?label=Public%20stars&style=flat&color=a78bfa)](https://github.com/soubhik-biswas?tab=repositories)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./id-dashboard-mobile.svg?v=e8e58f7d8418" />
-  <img src="./id-dashboard.svg?v=f96bd806efdb" width="100%" alt="Dated GitHub analytics: publicly visible contributions, recent activity, active days, longest streak, weekly trends, public repositories, stars, forks, followers and language composition." />
+  <source media="(max-width: 600px)" srcset="./id-dashboard-mobile.svg?v=3c051fc16eb9" />
+  <img src="./id-dashboard.svg?v=8cd54b11ea0e" width="100%" alt="Dated GitHub analytics: publicly visible contributions, recent activity, active days, longest streak, weekly trends, public repositories, stars, forks, followers and language composition." />
 </picture>
 
-<img src="./contribution-city.svg?v=e5a6f6b73138" width="100%" alt="An isometric city drawn from the public GitHub contribution calendar. Each building represents a day; height follows its activity level." />
+<img src="./contribution-city.svg?v=244f5cd6b521" width="100%" alt="An isometric city drawn from the public GitHub contribution calendar. Each building represents a day; height follows its activity level." />
 
 These are dated snapshots from the [public GitHub API](https://api.github.com/users/soubhik-biswas) and [contribution calendar](https://github.com/soubhik-biswas), refreshed daily. Repository totals exclude forks. Languages measure code bytes across owned public repositories. Recent totals use the last 7 or 30 displayed calendar days; streaks use the displayed year.
 
