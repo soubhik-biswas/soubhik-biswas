@@ -1,0 +1,43 @@
+name: Refresh portfolio
+
+on:
+  schedule:
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [profile.json, scripts/**, assets/**, .github/workflows/profile.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: portfolio-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Refresh public data
+        run: python scripts/update-data.py
+      - name: Build profile graphics
+        run: python scripts/render-profile.py
+      - name: Test refresh failure handling
+        run: python -m unittest discover -s scripts -p 'test_*.py'
+      - name: Validate graphics and links
+        run: python scripts/check-profile.py
+      - name: Save updated portfolio
+        run: |
+          git config user.name 'Soubhik Biswas'
+          git config user.email 'sbiswas773@gmail.com'
+          git add assets/public-data.json README.md ./*.svg
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh public portfolio activity'
+            git push
+          fi
