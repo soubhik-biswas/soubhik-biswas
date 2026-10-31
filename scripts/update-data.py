@@ -54,10 +54,22 @@ def main():
     days = sorted(calendar.days.values(), key=lambda day: day['date'])
     if len(days) < 300 or any(day['count'] is None for day in days):
         raise RuntimeError('Public calendar format changed; keeping the previous snapshot')
+    account = json.loads(fetch(f'https://api.github.com/users/{USER}'))
+    if account['id'] != 54506603:
+        raise RuntimeError('Public account identity changed; keeping the previous snapshot')
+    languages = {}
+    for repo in repos:
+        breakdown = json.loads(fetch(f'https://api.github.com/repos/{USER}/{repo["name"]}/languages'))
+        for language, amount in breakdown.items():
+            if not isinstance(amount, int) or amount < 0:
+                raise ValueError('Invalid public language byte count')
+            languages[language] = languages.get(language, 0) + amount
     snapshot = {
         'updated': datetime.now(timezone.utc).strftime('%Y-%m-%d'),
         'source': f'https://github.com/{USER}',
-        'repos': [{'name': r['name'], 'url': r['html_url'], 'stars': r['stargazers_count'], 'language': r['language']} for r in repos],
+        'repos': [{'name': r['name'], 'url': r['html_url'], 'stars': r['stargazers_count'], 'forks': r.get('forks_count', 0), 'language': r['language']} for r in repos],
+        'account': {key: account[key] for key in ['id', 'followers', 'following', 'created_at']},
+        'languages': languages,
         'days': days,
         'contributions': sum(day['count'] for day in days),
     }
