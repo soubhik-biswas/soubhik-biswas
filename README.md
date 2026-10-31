@@ -1,12 +1,12 @@
-<img src="./assets/personal-cover.png" width="100%" alt="Soubhik Biswas: music flowing into an idea, an evening by the river, and something new taking shape." />
+<img src="./assets/personal-cover.png" width="100%" alt="Soubhik Biswas on a clean midnight-blue cover with a subtle headphone outline." />
 
 # Soubhik Biswas · Lead Frontend Engineer
 
-I lead frontend engineering at **Deccan AI**, working on frontend architecture, React design systems, schema-driven forms, and complex product interfaces. From **Kolkata / Krishnanagar, India**. Previously **SDE-I at AccioJob**.
+I lead frontend engineering at **Deccan AI**, working on frontend architecture, React design systems, schema-driven forms, and complex product interfaces. **Home:** Kolkata / Krishnanagar, India. **Company office:** Hyderabad, Telangana. Previously **SDE-I at AccioJob**.
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./hero-mobile.svg?v=c98388519f1f" />
-  <img src="./hero.svg?v=cf0cdb59378c" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. Frontend architecture, music, and building new things." />
+  <source media="(max-width: 600px)" srcset="./hero-mobile.svg?v=19a991bb1acd" />
+  <img src="./hero.svg?v=e6be1b84a453" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. Frontend architecture, music, and building new things." />
 </picture>
 
 [LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Email](mailto:sbiswas773@gmail.com) · [Public projects](https://github.com/SoubhikBiswas-gitHub?tab=repositories)

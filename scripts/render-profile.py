@@ -95,8 +95,8 @@ def hero(mobile=False):
         body += f'<g class="role r{i+1}">' + text(34, 252, value, 25) + '</g>'
     body += text(34, 289, 'There’s usually a song on.', 20, MUTED)
     body += text(34, 317, 'And something new taking shape.', 20, MUTED)
-    body += text(34, 350, PROFILE['company'], 18, CYAN)
-    body += text(34, 376, 'Kolkata / Krishnanagar, India', 15, MUTED, True)
+    body += text(34, 350, PROFILE['company'] + ' · ' + PROFILE['company_location'], 17, CYAN)
+    body += text(34, 376, 'Home: ' + PROFILE['home'], 14, MUTED, True)
     body += text(34, 396, 'REACT / NEXT.JS / TYPESCRIPT', 12, VIOLET, True)
     px, py, pw, ph = (90, 415, 330, 330) if mobile else (650, 78, 310, 325)
     body += rect(px, py, pw, ph, '#101726', '#35435d', 18)
