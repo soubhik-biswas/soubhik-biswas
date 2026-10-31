@@ -1,5 +1,6 @@
 """Verify public data, local links and the offline SVG contract."""
 import importlib.util
+import hashlib
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -12,8 +13,14 @@ assert 300 <= len(data['days']) <= 372
 assert all(isinstance(d['count'], int) and d['count'] >= 0 and d['level'] in range(5) for d in data['days'])
 assert data['contributions'] == sum(d['count'] for d in data['days'])
 assert len({r['name'] for r in data['repos']}) == len(data['repos'])
+assert set(data['account']) == {'id', 'followers', 'following', 'created_at'}
+assert data['account']['id'] == 54506603
+assert all(type(data['account'][key]) is int and data['account'][key] >= 0 for key in ('followers','following'))
+assert all(type(amount) is int and amount >= 0 for amount in data['languages'].values())
 files = list(ROOT.glob('*.svg'))
-assert len(files) == 11, f'Expected 11 panels, got {len(files)}'
+panels = ['hero', 'about-life', 'stack', 'id-dashboard', 'connect', 'project-awaketab', 'project-bucketpeek', 'project-prismwink']
+expected = {name+suffix+'.svg' for name in panels for suffix in ('', '-mobile')} | {'contribution-city.svg'}
+assert {path.name for path in files} == expected, 'Missing or unexpected portfolio panels'
 for path in files:
     source = path.read_text()
     root = ET.fromstring(source)
@@ -34,9 +41,13 @@ for path in files:
 readme = (ROOT / 'README.md').read_text()
 for image in re.findall(r'(?:src|srcset)="(\./[^"?]+)', readme):
     assert (ROOT / image).is_file(), f'Broken README image {image}'
-assert readme.count('<picture>') == 5
+assert readme.count('<picture>') == 8
+for filename, version in re.findall(r'\./([\w-]+\.svg)\?v=([\w-]+)', readme):
+    assert version == hashlib.sha256((ROOT / filename).read_bytes()).hexdigest()[:12], f'Stale image cache key: {filename}'
 assert 'mailto:' not in readme
 assert 'email' not in json.loads((ROOT / 'profile.json').read_text())
+for path in [ROOT/'README.md', ROOT/'profile.json', ROOT/'assets/public-data.json', *files]:
+    assert not re.search(r'@(?:gmail|outlook|yahoo)\.',path.read_text(), re.I), f'Personal contact address in {path.name}'
 assert 'https://www.linkedin.com/in/biswas-soubhik/' in readme
 for project in re.findall(r'https://github.com/soubhik-biswas/([\w-]+)\)', readme):
     if project != 'soubhik-biswas':

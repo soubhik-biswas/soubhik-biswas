@@ -67,6 +67,10 @@ class RefreshTests(unittest.TestCase):
                 body = json.dumps(second)
             elif url == f'https://github.com/users/{refresh.USER}/contributions':
                 body = calendar_html()
+            elif url == f'https://api.github.com/users/{refresh.USER}':
+                body = json.dumps({'id': 54506603, 'followers': 4, 'following': 12, 'created_at': '2019-08-24T00:00:00Z', 'email': 'private-value'})
+            elif url.startswith(f'https://api.github.com/repos/{refresh.USER}/') and url.endswith('/languages'):
+                body = json.dumps({'TypeScript': 20, 'CSS': 5})
             else:
                 self.fail(f'Unexpected public-data URL: {url}')
             return io.BytesIO(body.encode())
@@ -74,11 +78,13 @@ class RefreshTests(unittest.TestCase):
         with patch.object(refresh.urllib.request, 'urlopen', side_effect=respond):
             refresh.main()
         result = json.loads(self.snapshot.read_text())
-        self.assertEqual(len(seen), 3)
+        self.assertEqual(len(seen), 104)
         self.assertEqual(len(result['repos']), 100)
         self.assertNotIn('project-0', [repo['name'] for repo in result['repos']])
         self.assertEqual(result['repos'][-1]['name'], 'last-project')
-        self.assertEqual(set(result['repos'][0]), {'name', 'url', 'stars', 'language'})
+        self.assertEqual(set(result['repos'][0]), {'name', 'url', 'stars', 'forks', 'language'})
+        self.assertEqual(result['account'], {'id': 54506603, 'followers': 4, 'following': 12, 'created_at': '2019-08-24T00:00:00Z'})
+        self.assertEqual(result['languages'], {'TypeScript': 2000, 'CSS': 500})
         self.assertEqual(result['days'][0], {'date': '2026-01-01', 'level': 0, 'count': 0})
         self.assertEqual(result['days'][-1]['date'], (date(2026, 1, 1) + timedelta(days=299)).isoformat())
         self.assertEqual(result['contributions'], 600)
@@ -107,6 +113,28 @@ class RefreshTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'Public calendar format changed'):
                 refresh.main()
         self.assert_preserved()
+
+    # Value: protects=the account identity before publication; fails_when=a different
+    # account replaces the last valid snapshot; why_new=identity guard was added;
+    # seam=none; no_claim=live identity-provider availability.
+    def test_wrong_account_keeps_previous_snapshot(self):
+        responses = [json.dumps([]), calendar_html(), json.dumps({'id': 100})]
+        with patch.object(refresh, 'fetch', side_effect=responses):
+            with self.assertRaisesRegex(RuntimeError, 'identity changed'):
+                refresh.main()
+        self.assert_preserved()
+
+    # Value: protects=complete public language data and atomic snapshot preservation;
+    # fails_when=rate limits or invalid byte counts publish partial totals;
+    # why_new=language endpoints are new; seam=none; no_claim=live API reliability.
+    def test_incomplete_language_data_keeps_previous_snapshot(self):
+        prefix = [json.dumps([repository('one')]), calendar_html(), json.dumps({'id': 54506603})]
+        for failure in (URLError('rate limit'), json.dumps({'TypeScript': -1})):
+            with self.subTest(failure=str(failure)):
+                with patch.object(refresh, 'fetch', side_effect=prefix+[failure]):
+                    with self.assertRaises((URLError, ValueError)):
+                        refresh.main()
+                self.assert_preserved()
 
     # Value: protects=missing daily counts cannot silently become a partial snapshot;
     # fails_when=missing tooltips are ignored and incomplete totals are saved;

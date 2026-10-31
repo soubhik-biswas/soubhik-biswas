@@ -1,77 +1,101 @@
-<img src="./assets/personal-cover.png" width="100%" alt="Soubhik Biswas on a clean midnight-blue cover with a subtle headphone outline." />
-
 # Soubhik Biswas · Lead Frontend Engineer
 
-I lead frontend engineering at **Deccan AI**, working on frontend architecture, React design systems, schema-driven forms, and complex product interfaces. **Home:** Kolkata / Krishnanagar, India. **Company office:** Hyderabad, Telangana. Previously **SDE-I at AccioJob**.
-
 <picture>
-  <source media="(max-width: 600px)" srcset="./hero-mobile.svg?v=19a991bb1acd" />
-  <img src="./hero.svg?v=e6be1b84a453" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. Frontend architecture, music, and building new things." />
+  <source media="(max-width: 600px)" srcset="./hero-mobile.svg?v=9bf6c2205a9c" />
+  <img src="./hero.svg?v=cfb8567386e0" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. Frontend architecture, design systems, React, Next.js and TypeScript." />
 </picture>
 
-[LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Public projects](https://github.com/soubhik-biswas?tab=repositories)
+I lead frontend engineering at **Deccan AI**, building shared design systems, schema-driven forms and complex product interfaces. Previously **SDE-I at AccioJob**, working on contest platforms, browser-based project editing and coding assessments.
+
+**Home:** Kolkata / Krishnanagar, India · **Company office:** Hyderabad, Telangana<br />
+[LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Public repositories](https://github.com/soubhik-biswas?tab=repositories)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=af147ca12075" />
-  <img src="./about-life.svg?v=ca79343b243c" width="100%" alt="What I build: frontend architecture, design systems, and complex product interfaces. Outside work: building new things, music, and learning." />
+  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=96c4cbb16f32" />
+  <img src="./about-life.svg?v=c8a4a7b19ba1" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
 </picture>
 
-## Frontend architecture & product engineering
+My work connects reusable React components, configurable themes and interactive documentation with the details of each product. That includes shared validation, coding interfaces, authentication, browser extensions and resumable uploads.
 
-At Deccan AI, I lead frontend architecture and delivery across product workflows, including annotation platforms, onboarding, and assessments. I build shared frontend foundations while preserving the needs of each product.
+## Selected work
 
-- **Design systems:** shared design tokens, configurable themes, reusable React components, and interactive documentation.
-- **Forms and workflows:** schema-driven form builders and renderers, shared validation, and product-specific extensions.
-- **Product interfaces:** coding interfaces, authentication, browser extensions, resumable uploads, and data validation.
-- **Earlier at AccioJob:** an in-house contest platform, a browser-based project editor, Acciomatrix coding assessments, and Redux Toolkit improvements.
+<a href="https://github.com/soubhik-biswas/awaketab">
+<picture>
+  <source media="(max-width: 600px)" srcset="./project-awaketab-mobile.svg?v=76d5d2bcc526" />
+  <img src="./project-awaketab.svg?v=59acc5568fe3" width="100%" alt="AwakeTab: Screen Wake Lock lifecycle handling, session timers, clock faces and an embeddable widget. Actual product screenshot. Open the source repository." />
+</picture>
+</a>
 
-I regularly turn new ideas into side projects. I enjoy learning through building and sharing what I learn. And music is life.
+[AwakeTab source](https://github.com/soubhik-biswas/awaketab) · [Try AwakeTab](https://awaketab.com/)
+
+<a href="https://github.com/soubhik-biswas/bucketpeek">
+<picture>
+  <source media="(max-width: 600px)" srcset="./project-bucketpeek-mobile.svg?v=ad3f8190b5af" />
+  <img src="./project-bucketpeek.svg?v=825cb40eb249" width="100%" alt="BucketPeek: S3 browsing, signed access, file previews, media inspection and on-demand video conversion. Source-derived architecture diagram. Open the repository." />
+</picture>
+</a>
+
+[BucketPeek source](https://github.com/soubhik-biswas/bucketpeek)
+
+<a href="https://github.com/soubhik-biswas/prismwink">
+<picture>
+  <source media="(max-width: 600px)" srcset="./project-prismwink-mobile.svg?v=6660169345c7" />
+  <img src="./project-prismwink.svg?v=358117ddf3fd" width="100%" alt="Prismwink: local camera processing and gesture-triggered vanish and return effects, preserving intentional microphone state. Actual product screenshot. Open the source repository." />
+</picture>
+</a>
+
+[Prismwink source](https://github.com/soubhik-biswas/prismwink)
+
+| More projects | Engineering focus |
+| --- | --- |
+| [Passlore](https://github.com/soubhik-biswas/passlore) | Browser-side password, passphrase and PIN generation with configurable formats and strength estimates. |
+| [OiBuddy for VS Code](https://github.com/soubhik-biswas/oibuddy-vscode) | Animated editor companions, break reminders, focus sounds and a daily progress dashboard. |
+
+## Tools behind the work
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./stack-mobile.svg?v=db737fd345fe" />
-  <img src="./stack.svg?v=f6664f6c829f" width="100%" alt="Core stack: React, Next.js, TypeScript, JavaScript, Redux Toolkit, SCSS, HTML, CSS, Tailwind CSS, and Git." />
+  <source media="(max-width: 600px)" srcset="./stack-mobile.svg?v=28906f6a98ba" />
+  <img src="./stack.svg?v=64fc8f092627" width="100%" alt="Frontend tools: React, Next.js, TypeScript, JavaScript, Redux Toolkit, SCSS, HTML, CSS, Tailwind CSS and Git. Animated technology orbits with a reduced-motion fallback." />
 </picture>
 
-**Core stack:** React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML · CSS · Tailwind CSS · Git
+React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML · CSS · Tailwind CSS · Git
+
+## Public GitHub activity
+
+[![Daily profile refresh](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml/badge.svg)](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml)
+[![GitHub followers](https://img.shields.io/github/followers/soubhik-biswas?label=Followers&style=flat&color=22d3ee)](https://github.com/soubhik-biswas?tab=followers)
+[![Public repository stars](https://img.shields.io/github/stars/soubhik-biswas?label=Public%20stars&style=flat&color=a78bfa)](https://github.com/soubhik-biswas?tab=repositories)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./id-dashboard-mobile.svg?v=407859179d2a" />
-  <img src="./id-dashboard.svg?v=cf7e2de90bff" width="100%" alt="Soubhik Biswas identity card and dated public GitHub activity dashboard. Statistics are refreshed daily." />
+  <source media="(max-width: 600px)" srcset="./id-dashboard-mobile.svg?v=e8e58f7d8418" />
+  <img src="./id-dashboard.svg?v=f96bd806efdb" width="100%" alt="Dated GitHub analytics: publicly visible contributions, recent activity, active days, longest streak, weekly trends, public repositories, stars, forks, followers and language composition." />
 </picture>
 
-## Selected public projects
+<img src="./contribution-city.svg?v=e5a6f6b73138" width="100%" alt="An isometric city drawn from the public GitHub contribution calendar. Each building represents a day; height follows its activity level." />
 
-| Project | What it does | Built with |
-| --- | --- | --- |
-| [AwakeTab](https://github.com/soubhik-biswas/awaketab) | Keeps a screen awake, with session timers, clock faces, focus controls, an embeddable widget, and a Chrome extension. | Astro, React, TypeScript, Screen Wake Lock API |
-| [BucketPeek](https://github.com/soubhik-biswas/bucketpeek) | S3 file browser with search, media and document previews, timed sharing links, and video health checks. | Next.js, React, TypeScript, AWS SDK |
-| [Passlore](https://github.com/soubhik-biswas/passlore) | Browser-based password, passphrase, and PIN generator with strength estimates and configurable formats. | Next.js, React, TypeScript, Tailwind CSS |
-| [Prismwink](https://github.com/soubhik-biswas/prismwink) | Camera-effects extension with a practice studio and gesture-triggered effects. | React, TypeScript, MediaPipe, Canvas |
-| [OiBuddy for VS Code](https://github.com/soubhik-biswas/oibuddy-vscode) | Animated editor companions, gentle break reminders, focus sounds, and a daily progress dashboard. | JavaScript, VS Code Extension API, HTML, CSS |
-
-## GitHub contribution city
-
-<img src="./contribution-city.svg?v=8cdf4f7a597c" width="100%" alt="Soubhik Biswas's three-dimensional contribution city, built from the public GitHub contribution calendar and refreshed daily." />
-
-The city and dashboard use publicly visible GitHub activity. They are dated snapshots, refreshed daily by the [portfolio workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml).
+These are dated snapshots from the [public GitHub API](https://api.github.com/users/soubhik-biswas) and [contribution calendar](https://github.com/soubhik-biswas), refreshed daily. Repository totals exclude forks. Languages measure code bytes across owned public repositories. Recent totals use the last 7 or 30 displayed calendar days; streaks use the displayed year.
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./connect-mobile.svg?v=6c06bb6c88da" />
-  <img src="./connect.svg?v=7f8754f259ef" width="100%" alt="Connect with Soubhik Biswas about frontend architecture, React design systems, and useful product ideas. Links below." />
+  <source media="(max-width: 600px)" srcset="./connect-mobile.svg?v=86dd25860cde" />
+  <img src="./connect.svg?v=44792c7c27b0" width="100%" alt="Connect with Soubhik Biswas about frontend architecture, design systems and product engineering." />
 </picture>
 
-## Connect
-
-I welcome conversations about frontend architecture, design systems, reusable frontend foundations, and complex product interfaces.
-
-- **LinkedIn:** [Soubhik Biswas](https://www.linkedin.com/in/biswas-soubhik/)
-- **GitHub:** [soubhik-biswas](https://github.com/soubhik-biswas)
+[Connect on LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Explore my GitHub](https://github.com/soubhik-biswas)
 
 <details>
-<summary>About this portfolio</summary>
+<summary>Portfolio sources and maintenance</summary>
 
-The artwork is an original illustrated character. The panels use self-contained SVG and CSS, with local fonts and images embedded. They support reduced-motion preferences and include a separate layout for narrow screens. The important professional details and project links also appear as readable text.
+The illustrations were created for this portfolio. Product screenshots come from my public repositories; the BucketPeek diagram describes its source architecture. Graphics are self-contained SVG with embedded artwork and fonts, separate narrow-screen layouts and reduced-motion support. Key professional facts and links remain readable as text.
 
-To change profile details, edit `profile.json` and the matching copy in `scripts/render-profile.py` and this README. Refresh the data with `python3 scripts/update-data.py`, rebuild with `python3 scripts/render-profile.py`, then run `python3 scripts/check-profile.py` and `python3 -m unittest discover -s scripts -p 'test_*.py'`. [Asset licenses](assets/NOTICES.md).
+Update profile details in `profile.json`, keep the prose in sync, then run:
+
+```sh
+python3 scripts/update-data.py
+python3 scripts/render-profile.py
+python3 scripts/check-profile.py
+python3 -m unittest discover -s scripts -p 'test_*.py'
+```
+
+[Asset sources and licenses](assets/NOTICES.md) · [Product brief](PRODUCT.md) · [Visual system](DESIGN.md)
 
 </details>
