@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-31",
+  "updated": "2026-11-01",
   "source": "https://github.com/soubhik-biswas",
   "repos": [
     {
@@ -73,51 +73,16 @@
     "created_at": "2019-08-25T15:58:15Z"
   },
   "languages": {
-    "TypeScript": 5729155,
-    "CSS": 764935,
+    "TypeScript": 5639504,
+    "CSS": 712864,
     "Astro": 431571,
-    "JavaScript": 159356,
-    "HTML": 151138,
+    "JavaScript": 151690,
+    "HTML": 98778,
     "Shell": 8354,
     "Dockerfile": 2198,
     "Python": 44213
   },
   "days": [
-    {
-      "date": "2025-10-26",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-10-27",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-10-28",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-10-29",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-10-30",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-10-31",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-11-01",
-      "level": 0,
-      "count": 0
-    },
     {
       "date": "2025-11-02",
       "level": 0,
@@ -1760,17 +1725,17 @@
     },
     {
       "date": "2026-09-26",
-      "level": 4,
+      "level": 3,
       "count": 157
     },
     {
       "date": "2026-09-27",
-      "level": 4,
+      "level": 3,
       "count": 158
     },
     {
       "date": "2026-09-28",
-      "level": 4,
+      "level": 3,
       "count": 155
     },
     {
@@ -1935,9 +1900,14 @@
     },
     {
       "date": "2026-10-31",
-      "level": 3,
-      "count": 127
+      "level": 4,
+      "count": 213
+    },
+    {
+      "date": "2026-11-01",
+      "level": 0,
+      "count": 0
     }
   ],
-  "contributions": 1558
+  "contributions": 1644
 }
