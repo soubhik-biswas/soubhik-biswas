@@ -67,11 +67,11 @@ React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML ·
 [![Public repository stars](https://img.shields.io/github/stars/soubhik-biswas?label=Public%20stars&style=flat&color=a78bfa)](https://github.com/soubhik-biswas?tab=repositories)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./id-dashboard-mobile.svg?v=5d654bd92a6c" />
-  <img src="./id-dashboard.svg?v=86806f6ee2a9" width="100%" alt="Dated GitHub analytics: publicly visible contributions, recent activity, active days, longest streak, weekly trends, public repositories, stars, forks, followers and language composition." />
+  <source media="(max-width: 600px)" srcset="./id-dashboard-mobile.svg?v=9e4c96c32210" />
+  <img src="./id-dashboard.svg?v=30b7f74aeb63" width="100%" alt="Dated GitHub analytics: publicly visible contributions, recent activity, active days, longest streak, weekly trends, public repositories, stars, forks, followers and language composition." />
 </picture>
 
-<img src="./contribution-city.svg?v=eaae344ba343" width="100%" alt="An isometric city drawn from the public GitHub contribution calendar. Each building represents a day; height follows its activity level." />
+<img src="./contribution-city.svg?v=2ca8ad96db56" width="100%" alt="An isometric city drawn from the public GitHub contribution calendar. Each building represents a day; height follows its activity level." />
 
 These are dated snapshots from the [public GitHub API](https://api.github.com/users/soubhik-biswas) and [contribution calendar](https://github.com/soubhik-biswas), refreshed daily. Repository totals exclude forks. Languages measure code bytes across owned public repositories. Recent totals use the last 7 or 30 displayed calendar days; streaks use the displayed year.
 
