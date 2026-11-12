@@ -1,217 +1,238 @@
-"""Build self-contained profile graphics from public data and local artwork."""
+"""Build the animated profile panels and README data sections from public data."""
 import base64
+import hashlib
 import json
 import math
-import hashlib
 import re
 import xml.etree.ElementTree as ET
-from calendar import Calendar
+from datetime import date
 from html import escape
-from itertools import groupby
+from itertools import count, groupby
 from pathlib import Path
-from datetime import date, timedelta
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW_ROOT = 'https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/'
+PANELS = ROOT / 'panels'
+RAW_ROOT = 'https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/'
 PROFILE = json.loads((ROOT / 'profile.json').read_text())
 DATA = json.loads((ROOT / 'assets/public-data.json').read_text())
 COMMIT_ACTIVITY = json.loads((ROOT / 'assets/commit-activity.json').read_text())
-FEATURED = json.loads((ROOT / 'docs/projects.json').read_text())
-GROUND, INK, MUTED, TRACK = '#17162e', '#f7f5ff', '#c2bedc', '#39365a'
-CITRON, PERIWINKLE, BLUSH = '#d8f36b', '#ada9ff', '#f4a6d0'
-LANGUAGE_COLORS = (CITRON, PERIWINKLE, BLUSH, '#f6bf78', '#82d4eb', '#ada9c8')
+PROJECTS = json.loads((ROOT / 'assets/projects.json').read_text())
+METRICS = json.loads((ROOT / 'assets/fonts/metrics.json').read_text())
 
+GROUND, RAISED, RAISED_2, LINE = '#17162e', '#211f42', '#2b2853', '#3b3763'
+INK, MUTED, DIM = '#f7f5ff', '#b9b5d8', '#8a86ad'
+CITRON, PINK, VIOLET, AMBER, SKY = '#d8f36b', '#ff8fc7', '#8f88ff', '#ffb86b', '#56c7ec'
+SERIES = (CITRON, PINK, VIOLET, AMBER, SKY)
+OTHER = DIM
+WEEKDAYS = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
+PAD, COLUMN = 32, 436
+_ids = count(1)
+
+
+# ── drawing toolkit ──────────────────────────────────────────────────────────
 
 def inline(path, mime):
     return f'data:{mime};base64,' + base64.b64encode((ROOT / path).read_bytes()).decode()
 
 
-def text(x, y, value, size=20, color=INK, mono=False, extra=''):
-    return f'<text x="{x}" y="{y}" font-size="{size}" fill="{color}" font-family="{ "Mono" if mono else "Display"}" {extra}>{escape(str(value))}</text>'
+def tw(value, size, weight=500, mono=False):
+    """Rendered width of a string, from the stored advance widths."""
+    value = str(value)
+    if mono:
+        return len(value) * METRICS['mono'] * size / 1000
+    table = METRICS['display'][str(weight)]
+    return sum(table.get(character, 600) for character in value) * size / 1000
 
 
-def rect(x, y, w, h, fill='#272447', stroke='#48436b', radius=14, extra=''):
-    return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{radius}" fill="{fill}" stroke="{stroke}" {extra}/>'
+def text(x, y, value, size=16, fill=INK, weight=500, anchor='start', mono=False, spacing=0, extra=''):
+    attributes = f'x="{x:g}" y="{y:g}" font-size="{size:g}" fill="{fill}"'
+    attributes += ' class="m"' if mono else f' font-weight="{weight}"'
+    if anchor != 'start':
+        attributes += f' text-anchor="{anchor}"'
+    if spacing:
+        attributes += f' letter-spacing="{spacing:g}"'
+    return f'<text {attributes} {extra}>{escape(str(value))}</text>'
+
+
+def rect(x, y, w, h, fill=RAISED, stroke='none', radius=0, extra=''):
+    return (f'<rect x="{x:g}" y="{y:g}" width="{max(0, w):g}" height="{max(0, h):g}" rx="{radius:g}" '
+            f'fill="{fill}" stroke="{stroke}" {extra}/>')
+
+
+def group(x, y, content):
+    return f'<g transform="translate({x:g} {y:g})">{content}</g>'
+
+
+def anim(content, name, delay=0.0, extra=''):
+    """Wrap content in an animated group. Base styles are always the end state."""
+    return f'<g class="{name}" style="animation-delay:{delay:.2f}s" {extra}>{content}</g>'
+
+
+def tip(content, label):
+    """A mark with its exact value. Hovering shows it when the panel is opened on its own."""
+    return f'<g class="mark"><title>{escape(label)}</title>{content}</g>'
 
 
 def icon(name, x, y, size=24, color=CITRON):
     root = ET.fromstring((ROOT / f'assets/icons/{name}.svg').read_text())
     paths = ''.join(f'<path d="{p.attrib["d"]}"/>' for p in root.iter() if p.tag.endswith('path'))
-    return f'<g transform="translate({x} {y}) scale({size / 24})" fill="{color}">{paths}</g>'
+    return f'<g transform="translate({x:g} {y:g}) scale({size / 24:g})" fill="{color}">{paths}</g>'
 
 
-CSS = '''
-text{font-weight:600}
-.float{animation:float 6s ease-in-out infinite}.pulse{animation:pulse 3s ease-in-out infinite}
-.progress{transform-box:fill-box;transform-origin:left;animation:progress 4s linear infinite}
-.role{animation:role 12s infinite;opacity:0}.r1{animation-delay:0s}.r2{animation-delay:4s}.r3{animation-delay:8s}
-.story{animation:story 12s infinite;opacity:0}.s1{animation-delay:0s}.s2{animation-delay:4s}.s3{animation-delay:8s}
-.r1,.s1{opacity:1}
-.ring{stroke-dasharray:160;stroke-dashoffset:20;animation:ring 5s ease-in-out infinite}
-.bar{transform-box:fill-box;transform-origin:left;animation:grow 1.4s ease-out both}
-.arrow{animation:nudge 3s ease-in-out infinite}
-@keyframes float{50%{transform:translateY(-7px)}}
-@keyframes pulse{50%{opacity:.4}}
-@keyframes progress{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
-@keyframes role{0%,27%{opacity:1}30%,100%{opacity:0}}
-@keyframes story{0%,28%{opacity:1}32%,100%{opacity:0}}
-@keyframes ring{50%{stroke-dashoffset:100}}
-@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes nudge{50%{transform:translateX(6px)}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important}.role,.story{display:none}.r1,.s1{display:inline;opacity:1}}
-'''
+def arrow(x, y, color=CITRON, size=1.0):
+    return (f'<path transform="translate({x:g} {y:g}) scale({size:g})" d="M-5 5L5 -5M-2.5 -5H5V2.5" fill="none" '
+            f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>')
 
 
-def svg(name, width, height, title, description, body, css=''):
-    fonts = ''.join(f"@font-face{{font-family:{family};src:url({inline('assets/fonts/'+file+'.woff2', 'font/woff2')}) format('woff2');font-weight:{weight}}}" for family, file, weight in [('Display', 'space-grotesk', 600), ('Mono', 'jetbrains-mono', 400)])
-    result = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">
-<title id="title">{escape(title)}</title><desc id="desc">{escape(description)}</desc>
-<defs><linearGradient id="border" x2="1" y2="1"><stop stop-color="{CITRON}" stop-opacity=".5"/><stop offset=".5" stop-color="{PERIWINKLE}" stop-opacity=".3"/><stop offset="1" stop-color="{BLUSH}" stop-opacity=".5"/></linearGradient>
-<linearGradient id="aurora"><stop stop-color="{CITRON}"/><stop offset=".55" stop-color="{PERIWINKLE}"/><stop offset="1" stop-color="{BLUSH}"/></linearGradient>
-<radialGradient id="halo"><stop stop-color="#4b438b" stop-opacity=".65"/><stop offset="1" stop-color="{GROUND}" stop-opacity="0"/></radialGradient>
-<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#7972a3" opacity=".23"/></pattern>
-<clipPath id="frame"><rect x="1" y="1" width="{width-2}" height="{height-2}" rx="24"/></clipPath></defs>
-<style>{fonts}{CSS}{css}</style>
-{rect(1,1,width-2,height-2,GROUND,'url(#border)',24)}
-<g clip-path="url(#frame)"><rect width="{width}" height="{height}" fill="url(#dots)"/>{body}</g></svg>'''
-    ET.fromstring(result)
-    (ROOT / name).write_text(result + '\n')
+def chip(x, y, label, size=12, fill=RAISED_2, color=MUTED, stroke=LINE):
+    width = tw(label, size, 500) + 18
+    height = size + 12
+    return rect(x, y, width, height, fill, stroke, height / 2) + text(x + 9, y + height / 2 + size * .35, label, size, color, 500), width
 
 
-def group(x, y, content):
-    return f'<g transform="translate({x} {y})">{content}</g>'
+def wrap(value, size, weight, limit):
+    lines, current = [], ''
+    for word in value.split():
+        attempt = f'{current} {word}'.strip()
+        if current and tw(attempt, size, weight) > limit:
+            lines.append(current)
+            current = word
+        else:
+            current = attempt
+    return lines + [current] if current else lines
+
+
+def odometer(x, y, value, size, fill=INK, weight=700, delay=0.0):
+    """A number whose digits roll into place. Reduced motion shows the final digits."""
+    value = str(value)
+    cell = size * .66
+    widths = [cell if character.isdigit() else tw(character, size, weight) for character in value]
+    row = size * 1.2
+    clip = f'c{next(_ids)}'
+    body = f'<clipPath id="{clip}"><rect x="{x - 2:g}" y="{y - size * .9:g}" width="{sum(widths) + 4:g}" height="{size * 1.12:g}"/></clipPath>'
+    body += f'<g clip-path="url(#{clip})" data-value="{escape(value)}">'
+    cursor = x
+    for index, (character, width) in enumerate(zip(value, widths)):
+        if character.isdigit():
+            strip = list(range(10)) + list(range(int(character) + 1))
+            digits = ''.join(text(cursor + width / 2, y + step * row, digit, size, fill, weight, 'middle')
+                             for step, digit in enumerate(strip))
+            shift = (len(strip) - 1) * row
+            body += (f'<g class="roll" style="transform:translateY(-{shift:g}px);'
+                     f'animation-delay:{delay + index * .09:.2f}s">{digits}</g>')
+        else:
+            body += text(cursor, y, character, size, fill, weight)
+        cursor += width
+    return body + '</g>', sum(widths)
 
 
 def short_date(value):
-    day = date.fromisoformat(value)
+    day = date.fromisoformat(value) if isinstance(value, str) else value
     return f'{day:%b} {day.day}'
 
 
-def hero(mobile=False):
-    w, h = (500, 586) if mobile else (1000, 344)
-    body = text(32, 53, PROFILE['role'], 19, CITRON)
-    body += text(29, 123, 'Soubhik', 72, extra='letter-spacing="-2"')
-    body += text(29, 190, 'Biswas', 72, extra='letter-spacing="-2"')
-    body += text(32, 231, 'Frontend architecture & design systems', 19)
-    body += text(32, 263, 'React · Next.js · TypeScript', 16, MUTED)
-    if not mobile:
-        body += text(32, 310, PROFILE['home'], 13, MUTED)
-
-    days = DATA['days'][-91:]
-    weeks = activity_metrics()['weeks']
-    peak = max(weeks)
-    step = 10 ** int(math.log10(max(1, peak)))
-    ceiling = max(1, math.ceil(peak / step) * step)
-    weekly = text(0, 28, '13 weeks of GitHub activity', 24)
-    weekly += text(0, 90, f'{sum(weeks):,}', 55, CITRON)
-    weekly += text(0, 116, 'Publicly visible contributions', 13, MUTED)
-    for value in (0, ceiling):
-        y = 236 - value / ceiling * 92
-        weekly += f'<path d="M0 {y}H395" stroke="#625a86"/>'
-        weekly += text(438, y+4, f'{value:,}', 11, MUTED, True, 'text-anchor="end"')
-    for index, count in enumerate(weeks):
-        if count:
-            height = 92 * count / ceiling
-            dates = f'{short_date(days[index*7]["date"])}–{short_date(days[index*7+6]["date"])}'
-            color = CITRON if index == len(weeks)-1 else '#8178bb'
-            weekly += f'<g><title>{dates}: {count:,} contributions</title>'
-            weekly += rect(index*30.5, 236-height, 22, height, color, 'none', 3, 'class="weekly-bar"')+'</g>'
-    weekly += text(0, 261, short_date(days[0]['date']), 12, MUTED, True)
-    weekly += text(395, 261, short_date(days[-1]['date']), 12, CITRON, True, 'text-anchor="end"')
-    if mobile:
-        body += '<path d="M32 294H468" stroke="#625a86"/>'+group(32, 308, weekly)
-    else:
-        body += '<path d="M486 32V312" stroke="#625a86"/>'+group(525, 31, weekly)
-    svg('profile-overview-mobile.svg' if mobile else 'profile-overview.svg', w, h, 'Soubhik Biswas — Lead Frontend Engineer',
-        f'Frontend architecture and design systems. {sum(weeks):,} publicly visible contributions over 13 weeks ending {days[-1]["date"]}. Peak week: {peak:,} contributions.', body)
+def long_date(value):
+    day = date.fromisoformat(value) if isinstance(value, str) else value
+    return f'{day:%b} {day.day}, {day.year}'
 
 
-def about(mobile=False):
-    left = text(30,54,'One foundation.',32)+text(30,93,'Many product experiences.',30)
-    left += text(30,132,'Shared primitives, with room for product detail.',15,MUTED)
-    left += text(30,188,'DESIGN SYSTEM',12,CITRON,True)
-    for i,label in enumerate(['Tokens','Themes','Components']):
-        x=30+i*154
-        left+=rect(x,207,140,48,'#282449','#5a5082',8)+text(x+15,237,label,15)
-    left+='<path d="M100 255v33h308v-33 M254 255v33 M254 288v39 M100 327h308" stroke="#756996" fill="none" stroke-width="1.5"/>'
-    left+='<path d="M254 255v33h154v39" stroke="#d8f36b" fill="none" stroke-width="2" stroke-dasharray="8 160" class="packet"/>'
-    left+=text(30,311,'PRODUCT LAYER',12,PERIWINKLE,True)
-    for i,label in enumerate(['Onboarding','Forms','Assessments']):
-        x=30+i*154
-        left+=f'<path d="M{x+70} 327v12" stroke="#756996"/>'+rect(x,339,140,48,'#242945','#505e82',8)+text(x+12,369,label,15)
-    left+=text(30,437,'Architecture · validation · reusable React interfaces',13,MUTED)
-    right=text(28,54,'Curiosity, in practice.',28)
-    right+=text(28,87,'Outside the day job.',15,MUTED)
-    for i in range(3):
-        right+=rect(28+i*131,110,119,3,'#48436b','none',1)
-    stories=[('Make the idea tangible.','A small prototype is a good first question.','PROTOTYPE / LEARN / REFINE'),('Follow the unfamiliar.','Build, understand it, then share the details.','EXPLORE / UNDERSTAND / SHARE'),('A little space to reset.','Music, a pause, and another perspective.','LISTEN / RESET')]
-    for i,(title,caption,detail) in enumerate(stories):
-        art=''
-        if i==0:
-            for j,(label,width) in enumerate([('idea',96),('prototype',224),('iteration',328)]):
-                y=173+j*52
-                art+=text(28,y,label,13,MUTED,True)+rect(28,y+12,width,7,[CITRON,PERIWINKLE,BLUSH][j],'none',2,'class="bar"')
-        elif i==1:
-            for j,label in enumerate(['Explore the API','Build a working version','Write down the tradeoffs']):
-                y=171+j*54
-                art+=f'<circle cx="38" cy="{y-5}" r="7" fill="none" stroke="{CITRON}"/>'+text(62,y,label,17)
-                if j<2:art+=f'<path d="M38 {y+5}v29" stroke="#494267"/>'
-        else:
-            for j in range(30):
-                height=10+56*abs(math.sin(j*.62))
-                art+=rect(28+j*12,225-height/2,4,height,PERIWINKLE if j%3 else CITRON,'none',2,f'class="wave" style="animation-delay:{j*.07}s"')
-        right+=f'<g class="story s{i+1}">'+art+rect(28+i*131,110,119,3,CITRON,'none',1,'class="progress"')+text(28,347,title,23)+text(28,380,caption,14,MUTED)+text(28,429,detail,11,CITRON,True)+'</g>'
-    body=left+group(0,478,right) if mobile else left+group(550,0,right)
-    css='.packet{animation:packet 4s linear infinite}.wave{transform-box:fill-box;transform-origin:center;animation:wave 2s ease-in-out infinite}@keyframes packet{to{stroke-dashoffset:-336}}@keyframes wave{50%{transform:scaleY(.45)}}'
-    svg('about-life-mobile.svg' if mobile else 'about-life.svg',500 if mobile else 1000,954 if mobile else 478,'Shared frontend foundations and personal curiosity','System diagram: tokens, themes and components support onboarding, forms and assessments. Outside work: prototyping, learning and music.',body,css)
+def compact(value):
+    if value >= 1_000_000:
+        return f'{value / 1_000_000:.2f}M'
+    if value >= 10_000:
+        return f'{value / 1000:.0f}k'
+    if value >= 1000:
+        return f'{value / 1000:.1f}k'
+    return f'{value:,}'
 
 
-def stack(mobile=False):
-    css=''
-    orbit=text(26,38,'Frontend, in motion.',24)
-    orbit+='<ellipse cx="245" cy="233" rx="210" ry="174" fill="url(#halo)"/>'
-    for angle in [-28,28,90]:
-        orbit+=f'<ellipse cx="245" cy="233" rx="190" ry="75" transform="rotate({angle} 245 233)" fill="none" stroke="#514a78" stroke-width="1.2"/>'
-    orbit+='<circle cx="245" cy="233" r="47" fill="#312856" stroke="#8375ab"/>'
-    orbit+='<path d="M230 215l-15 18 15 18 M260 215l15 18-15 18" fill="none" stroke="#d8f36b" stroke-width="3"/>'+text(224,308,'UI',12,CITRON,True)
-    names=['typescript','nextdotjs','javascript','tailwindcss','git','redux','react']
-    for i,name in enumerate(names):
-        angle=math.radians([-28,28,90][(i//2)%3]); phase=i*math.tau/7
-        rx,ry=(172,100) if name=='react' else (190,75)
-        frames=[]
-        for n in range(25):
-            a=phase+n*math.tau/24; x=rx*math.cos(a);y=ry*math.sin(a)
-            tx=245+x*math.cos(angle)-y*math.sin(angle); ty=233+x*math.sin(angle)+y*math.cos(angle)
-            frames.append(f'{n/24*100:.3f}%{{transform:translate({tx:.2f}px,{ty:.2f}px)}}')
-        css+=f'@keyframes orbit{i}{{'+''.join(frames)+'}'
-        orbit+=f'<g style="animation:orbit{i} {22+i*2}s linear infinite;transform:translate({245+rx*math.cos(phase)*math.cos(angle)-ry*math.sin(phase)*math.sin(angle):.2f}px,{233+rx*math.cos(phase)*math.sin(angle)+ry*math.sin(phase)*math.cos(angle):.2f}px)">'
-        orbit+=rect(-22,-22,44,44,'#2a274b','#655c8c',12)+icon(name,-13,-13,26,[CITRON,PERIWINKLE,BLUSH][i%3])
-        if name=='react':
-            orbit+='<g class="satellites">'
-            for mx,moon in [(34,'html5'),(-34,'css')]:
-                orbit+=f'<g transform="translate({mx} 0)"><g class="moon-icon">'+rect(-9,-9,18,18,'#282449','#655c8c',4)+icon(moon,-6,-6,12,CITRON)+'</g></g>'
-            orbit+='</g>'
-        orbit+='</g>'
-    css+='.satellites{animation:moons 12s linear infinite}.moon-icon{animation:moons 12s linear infinite reverse}@keyframes moons{to{transform:rotate(360deg)}}'
-    grid=text(26,75,'Tools I work with.',29)
-    groups=[('FOUNDATIONS',[('javascript','JavaScript'),('typescript','TypeScript'),('html5','HTML'),('css','CSS')]),('INTERFACES',[('react','React'),('nextdotjs','Next.js'),('tailwindcss','Tailwind'),('sass','SCSS')]),('STATE & WORKFLOW',[('redux','Redux Toolkit'),('git','Git')])]
-    for j,(label,items) in enumerate(groups):
-        y=116+j*99
-        grid+=text(26,y,label,11,MUTED,True)
-        for k,(name,label) in enumerate(items):
-            x=26+(k%2)*214; yy=y+13+(k//2)*34
-            grid+=rect(x,yy,200,29,'#282446','#4d466e',8)+icon(name,x+9,yy+6,17,CITRON)+text(x+36,yy+20,label,13)
-    grid+=text(26,430,'ARCHITECTURE / SYSTEMS / PRODUCT',11,PERIWINKLE,True)
-    body=group(0,0,orbit)+group(0,450,grid) if mobile else orbit+group(500,0,grid)
-    svg('stack-mobile.svg' if mobile else 'stack.svg',500 if mobile else 1000,910 if mobile else 468,'Frontend engineering stack','React, Next.js, TypeScript, JavaScript, HTML, CSS, Tailwind CSS, SCSS, Redux Toolkit and Git. Animated elliptical technology orbits.',body,css)
+def nice_ceiling(peak, ticks=4):
+    """Smallest round axis maximum at or above the peak, and its tick step."""
+    if peak <= 0:
+        return 1, 1
+    raw = peak / ticks
+    magnitude = 10 ** math.floor(math.log10(raw))
+    step = next(m * magnitude for m in (1, 2, 2.5, 5, 10) if m * magnitude >= raw)
+    step = max(1, int(step)) if step >= 1 else step
+    return math.ceil(peak / step) * step, step
 
+
+CSS = '''
+text{font-family:Display}.m{font-family:Mono;font-weight:500}
+.in{animation:in .8s cubic-bezier(.2,.8,.2,1) both}
+.fade{animation:fade .9s ease both}
+.gy{transform-box:fill-box;transform-origin:50% 100%;animation:gy .9s cubic-bezier(.2,.8,.2,1) both}
+.gd{transform-box:fill-box;transform-origin:50% 0;animation:gy .9s cubic-bezier(.2,.8,.2,1) both}
+.gx{transform-box:fill-box;transform-origin:0 50%;animation:gx 1s cubic-bezier(.2,.8,.2,1) both}
+.pop{transform-box:fill-box;transform-origin:50% 50%;animation:pop .55s cubic-bezier(.3,1.5,.5,1) both}
+.draw{stroke-dasharray:1;animation:draw 1.8s cubic-bezier(.5,0,.2,1) both}
+.redraw{stroke-dasharray:1;animation:redraw 12s cubic-bezier(.5,0,.2,1) infinite backwards}
+.roll{animation:roll 1.7s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2.4s ease-in-out infinite}
+.ping{transform-box:fill-box;transform-origin:50% 50%;animation:ping 2.4s ease-out infinite}
+.glint{animation:glint 8s ease-in-out infinite}
+.breathe{transform-box:fill-box;transform-origin:50% 50%;animation:breathe 7s ease-in-out infinite}
+.march{animation:march 1.4s linear infinite}
+.nudge{animation:nudge 2.6s ease-in-out infinite}
+.mark:hover{filter:brightness(1.35)}
+@keyframes in{from{opacity:0;transform:translateY(12px)}}
+@keyframes fade{from{opacity:0}}
+@keyframes gy{from{transform:scaleY(0)}}
+@keyframes gx{from{transform:scaleX(0)}}
+@keyframes pop{from{opacity:0;transform:scale(0)}}
+@keyframes draw{from{stroke-dashoffset:1}}
+@keyframes redraw{0%{stroke-dashoffset:1}16%,100%{stroke-dashoffset:0}}
+@keyframes roll{from{transform:translateY(0)}}
+@keyframes pulse{50%{opacity:.35}}
+@keyframes ping{from{opacity:.75;transform:scale(1)}to{opacity:0;transform:scale(2.8)}}
+@keyframes glint{0%,9%,100%{opacity:1}4.5%{opacity:.55}}
+@keyframes breathe{0%,12%,100%{transform:scale(1)}6%{transform:scale(1.25)}}
+@keyframes march{to{stroke-dashoffset:-24}}
+@keyframes nudge{50%{transform:translate(3px,-3px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.motion{display:none}}
+'''
+
+
+def panel(name, width, height, title, description, body, css=''):
+    faces = (f"@font-face{{font-family:Display;src:url({inline('assets/fonts/space-grotesk.woff2', 'font/woff2')}) "
+             f"format('woff2');font-weight:300 700}}"
+             f"@font-face{{font-family:Mono;src:url({inline('assets/fonts/jetbrains-mono.woff2', 'font/woff2')}) "
+             f"format('woff2');font-weight:500}}")
+    result = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height:g}" viewBox="0 0 {width} {height:g}" role="img" aria-labelledby="title desc">
+<title id="title">{escape(title)}</title><desc id="desc">{escape(description)}</desc>
+<defs><linearGradient id="edge" x2="1" y2="1"><stop stop-color="{CITRON}" stop-opacity=".55"/><stop offset=".45" stop-color="{VIOLET}" stop-opacity=".3"/><stop offset="1" stop-color="{PINK}" stop-opacity=".45"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="{VIOLET}" stop-opacity=".2"/><stop offset="1" stop-color="{VIOLET}" stop-opacity="0"/></radialGradient>
+ <linearGradient id="wash" x2="0" y2="1"><stop stop-color="{PINK}" stop-opacity=".28"/><stop offset="1" stop-color="{PINK}" stop-opacity="0"/></linearGradient>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#7972a3" opacity=".22"/></pattern>
+<clipPath id="frame"><rect x="1" y="1" width="{width - 2}" height="{height - 2:g}" rx="24"/></clipPath></defs>
+<style>{faces}{CSS}{css}</style>
+{rect(1, 1, width - 2, height - 2, GROUND, 'url(#edge)', 24)}
+<g clip-path="url(#frame)"><rect width="{width}" height="{height:g}" fill="url(#dots)"/><circle cx="0" cy="0" r="{width * .46:g}" fill="url(#glow)"/>{body}</g></svg>'''
+    ET.fromstring(result)
+    PANELS.mkdir(exist_ok=True)
+    (PANELS / name).write_text(result + '\n')
+
+
+def heading(title, note, width):
+    """Panel title on the left; on wide panels the note sits on the same line, right aligned."""
+    body = text(PAD, 60, title, 28, INK, 700, spacing=-.6)
+    if width >= 1000:
+        return body + text(width - PAD, 60, note, 13, MUTED, 400, 'end'), 84
+    return body + text(PAD, 84, note, 13, MUTED, 400), 106
+
+
+def block_title(title, note):
+    return text(0, 20, title, 19, INK, 600, spacing=-.2) + text(0, 43, note, 13, MUTED, 400)
+
+
+# ── derived metrics ──────────────────────────────────────────────────────────
 
 def activity_metrics():
     days = DATA['days']
     counts = [day['count'] for day in days]
     longest = run = 0
-    for count in counts:
-        run = run+1 if count else 0
+    for value in counts:
+        run = run + 1 if value else 0
         longest = max(longest, run)
     recent = counts[-91:]
     weekdays = [0] * 7
@@ -219,61 +240,45 @@ def activity_metrics():
         if day['count']:
             weekdays[date.fromisoformat(day['date']).weekday()] += 1
     return {
-        'active': sum(count > 0 for count in counts),
+        'active': sum(value > 0 for value in counts),
         'longest': longest,
         'last30': sum(counts[-30:]),
         'previous30': sum(counts[-60:-30]),
-        'active30': sum(count > 0 for count in counts[-30:]),
-        'previous_active30': sum(count > 0 for count in counts[-60:-30]),
-        'weeks': [sum(recent[i:i+7]) for i in range(0, len(recent), 7)],
+        'active30': sum(value > 0 for value in counts[-30:]),
+        'previous_active30': sum(value > 0 for value in counts[-60:-30]),
+        'weeks': [sum(recent[i:i + 7]) for i in range(0, len(recent), 7)],
         'weekdays': weekdays,
     }
 
 
-def activity(mobile=False):
-    metrics = activity_metrics()
-    days = DATA['days']
-    comparison = text(0, 28, 'Two 30-day windows', 25, INK)
-    comparison += text(0, 55, 'Contributions and days with activity', 13, MUTED)
-    peak = max(1, metrics['last30'], metrics['previous30'])
-    periods = (
-        (days[-30], days[-1], metrics['last30'], metrics['active30'], CITRON),
-        (days[-60], days[-31], metrics['previous30'], metrics['previous_active30'], PERIWINKLE),
-    )
-    for index, (start, end, count, active, color) in enumerate(periods):
-        y = 100 + index*100
-        period = f'{short_date(start["date"])}–{short_date(end["date"])}'
-        comparison += text(0, y, period, 15, INK)
-        comparison += text(435, y+1, f'{count:,}', 26, color, extra='text-anchor="end"')
-        comparison += rect(0, y+13, 435, 10, TRACK, 'none', 4)
-        if count:
-            comparison += rect(0, y+13, 435*count/peak, 10, color, 'none', 4)
-        comparison += text(0, y+46, f'{active} of 30 days active', 13, MUTED)
-    busiest = max(days[-91:], key=lambda day: day['count'])
-    if busiest['count']:
-        peak_label = f'{short_date(busiest["date"])} was the busiest day in the 13-week window'
-        peak_count = f'{busiest["count"]:,} contributions'
-        comparison += text(0, 278, peak_label, 13, MUTED)
-        comparison += text(0, 303, peak_count, 18, BLUSH)
+def rolling_average(counts, window=7):
+    """Trailing mean for each of the last 91 days, using earlier days where they exist."""
+    start = len(counts) - min(91, len(counts))
+    return [sum(counts[max(0, i - window + 1):i + 1]) / window for i in range(start, len(counts))]
 
-    cadence = text(0, 28, 'Weekly rhythm', 25, INK)
-    cadence += text(0, 55, 'Active days by weekday in the same 13 weeks', 13, MUTED)
-    for index, (name, count) in enumerate(zip(('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'), metrics['weekdays'])):
-        y = 96 + index*27
-        cadence += text(0, y+4, name, 13, MUTED)
-        cadence += rect(47, y-6, 322, 10, TRACK, 'none', 3)
-        if count:
-            cadence += rect(47, y-6, 322*count/13, 10, PERIWINKLE, 'none', 3)
-        cadence += text(435, y+4, f'{count} / 13', 13, INK, extra='text-anchor="end"')
-    cadence += text(0, 303, f'{sum(metrics["weekdays"])} active days in the 91-day window', 13, MUTED)
 
-    if mobile:
-        body = group(32, 29, comparison)+group(32, 380, cadence)
-    else:
-        body = group(32, 29, comparison)+group(532, 29, cadence)
-    svg('activity-mobile.svg' if mobile else 'activity.svg', 500 if mobile else 1000, 721 if mobile else 368,
-        'Public GitHub contribution volume and cadence',
-        f'Latest 30 days: {metrics["last30"]:,} contributions over {metrics["active30"]} active days. Previous 30 days: {metrics["previous30"]:,} contributions over {metrics["previous_active30"]} active days. Active days by weekday over 13 weeks starting Monday: {", ".join(map(str, metrics["weekdays"]))}.', body)
+def momentum(current, previous):
+    """Plain-language comparison of two periods. No ratio is claimed from a zero base."""
+    if not previous:
+        return ('New', 'activity; the previous 30 days had none') if current else ('0', 'contributions in either period')
+    ratio = current / previous
+    label = f'{ratio:.1f}×' if ratio < 10 else f'{ratio:.0f}×'
+    return label, 'the previous 30 days'
+
+
+def commit_totals():
+    days = COMMIT_ACTIVITY['days'].values()
+    return {key: sum(day[key] for day in days) for key in ('commits', 'additions', 'deletions')}
+
+
+def weekly_commits():
+    days = DATA['days'][-91:]
+    weeks = []
+    for index in range(0, len(days), 7):
+        chunk = [COMMIT_ACTIVITY['days'].get(day['date'], {}) for day in days[index:index + 7]]
+        weeks.append({'start': days[index]['date'], 'end': days[min(index + 6, len(days) - 1)]['date'],
+                      **{key: sum(day.get(key, 0) for day in chunk) for key in ('commits', 'additions', 'deletions')}})
+    return weeks
 
 
 def language_categories():
@@ -282,85 +287,772 @@ def language_categories():
 
 
 def language_segments(breakdown, categories):
-    segments = [(name, breakdown.get(name, 0), LANGUAGE_COLORS[index])
-                for index, name in enumerate(categories)]
+    segments = [(name, breakdown.get(name, 0), SERIES[index]) for index, name in enumerate(categories)]
     other = sum(amount for name, amount in breakdown.items() if name not in categories)
     if other:
-        segments.append(('Other', other, LANGUAGE_COLORS[-1]))
+        segments.append(('Other', other, OTHER))
     return [(name, amount, color) for name, amount, color in segments if amount]
 
 
-def language_strip(segments, y):
-    total = sum(amount for _, amount, _ in segments)
-    if not total:
-        return ''
-    body = ''
-    x = 0
-    for name, amount, color in segments:
-        width = 435 * amount/total
-        body += f'<g><title>{escape(name)} · {amount/total:.1%}</title>'
-        body += rect(x, y, width, 12, color, 'none', 0)+'</g>'
-        x += width
+def squarify(items, x, y, w, h):
+    """Squarified treemap. items: (key, value) sorted descending, values above zero."""
+    total = sum(value for _, value in items)
+    if not total or w <= 0 or h <= 0:
+        return []
+    scale = w * h / total
+    areas = [(key, value * scale) for key, value in items]
+    placed = []
+
+    def worst(row, side):
+        s = sum(area for _, area in row)
+        return max(max(side * side * area / (s * s), s * s / (side * side * area)) for _, area in row)
+
+    while areas:
+        side = min(w, h)
+        row = [areas.pop(0)]
+        while areas and worst(row + [areas[0]], side) <= worst(row, side):
+            row.append(areas.pop(0))
+        s = sum(area for _, area in row)
+        thickness = s / side
+        offset = 0
+        for key, area in row:
+            length = area / thickness
+            if w >= h:
+                placed.append((key, x, y + offset, thickness, length))
+            else:
+                placed.append((key, x + offset, y, length, thickness))
+            offset += length
+        if w >= h:
+            x, w = x + thickness, w - thickness
+        else:
+            y, h = y + thickness, h - thickness
+    return placed
+
+
+# ── hero ─────────────────────────────────────────────────────────────────────
+
+def inspector(width):
+    metrics = activity_metrics()
+    days = DATA['days'][-91:]
+    body = rect(0, 0, width, 300, RAISED, LINE, 16)
+    body += text(22, 33, 'Inspect', 14, INK, 600) + text(width - 22, 33, 'Profile', 11, DIM, anchor='end', mono=True)
+    body += f'<path d="M0 50H{width}" stroke="{LINE}"/>'
+    rows = (('Team', PROFILE['company']), ('Focus', 'Design systems, product UI'),
+            ('Based', PROFILE['home']), ('GitHub', f'Since {DATA["account"]["created_at"][:4]}'))
+    for index, (label, value) in enumerate(rows):
+        y = 79 + index * 27
+        body += anim(text(22, y, label, 13, DIM, 400) + text(92, y, value, 13, INK, 500), 'in', 1.2 + index * .09)
+    y = 79 + len(rows) * 27
+    chips, x = text(22, y, 'Stack', 13, DIM, 400), 92
+    for index, label in enumerate(('React', 'Next.js', 'TypeScript')):
+        drawn, used = chip(x, y - 17, label)
+        chips += anim(drawn, 'pop', 1.65 + index * .08)
+        x += used + 6
+    body += chips + f'<path d="M0 208H{width}" stroke="{LINE}"/>'
+    body += text(22, 233, 'Contributions, last 13 weeks', 12, MUTED, 400)
+    number, _ = odometer(22, 277, f'{sum(metrics["weeks"]):,}', 36, INK, 700, 1.9)
+    body += number
+    peak = max(1, max(metrics['weeks']))
+    left = width - 22 - 12 * 12 - 8
+    for index, value in enumerate(metrics['weeks']):
+        x = left + index * 12
+        body += rect(x, 280, 8, 2, LINE, 'none', 1)
+        if value:
+            height = max(2, 52 * value / peak)
+            latest = index == len(metrics['weeks']) - 1
+            label = f'{short_date(days[index * 7]["date"])} to {short_date(days[min(index * 7 + 6, len(days) - 1)]["date"])}: {value:,} contributions'
+            bar = rect(x, 282 - height, 8, height, CITRON if latest else VIOLET, 'none', 2, 'class="weekly-bar"')
+            body += tip(anim(bar, 'gy', 2.0 + index * .05), label)
+            if latest:
+                body += f'<circle class="ping motion" cx="{x + 4}" cy="{282 - height:g}" r="4" fill="{CITRON}"/>'
     return body
 
 
-def codebase(mobile=False):
+def hero(mobile=False):
+    width = 500 if mobile else 1000
+    size = 76 if mobile else 92
+    tracking = -.035 * size
+    first, last = PROFILE['name'].split(' ', 1)
+    left = PAD if mobile else 60
+    base_1 = 148 if mobile else 162
+    base_2 = base_1 + round(size * .94)
+    name_width = max(tw(word, size, 700) + tracking * (len(word) - 1) for word in (first, last))
+    box = (left - 12, base_1 - size * .7 - 14, name_width + 26, base_2 - base_1 + size * .7 + 30)
+    box_right, box_bottom = box[0] + box[2], box[1] + box[3]
+    canvas = width if mobile else 596
+
+    body = text(PAD, 30, PROFILE['username'], 12, DIM, mono=True)
+    body += text(PAD + tw(PROFILE['username'], 12, mono=True) + 8, 30, '/ profile', 12, MUTED, mono=True)
+    body += text(width - PAD - 82, 30, 'Design', 12, DIM, 500, 'end')
+    body += rect(width - PAD - 70, 14, 70, 24, '#d8f36b22', CITRON + '66', 12) + text(width - PAD - 35, 30, 'Inspect', 12, CITRON, 600, 'middle')
+    body += f'<path d="M0 46H{width}" stroke="{LINE}"/>'
+
+    guides = ''.join(f'<path d="M0 {y:g}H{canvas}" stroke="{PINK}" stroke-opacity=".4" stroke-dasharray="3 6"/>' for y in (base_1, base_2))
+    body += anim(guides, 'fade', .1)
+    body += anim(text(left, base_1, first, size, INK, 700, spacing=tracking), 'in', .2)
+    body += anim(text(left, base_2, last, size, INK, 700, spacing=tracking), 'in', .34)
+
+    body += f'<rect class="draw" style="animation-delay:1.45s;animation-duration:.9s" pathLength="1" x="{box[0]:g}" y="{box[1]:g}" width="{box[2]:g}" height="{box[3]:g}" fill="none" stroke="{CITRON}" stroke-width="1.5"/>'
+    for index, (x, y) in enumerate(((box[0], box[1]), (box_right, box[1]), (box[0], box_bottom), (box_right, box_bottom))):
+        body += anim(rect(x - 4, y - 4, 8, 8, GROUND, CITRON, 1.5, 'stroke-width="1.5"'), 'pop', 2.0 + index * .05)
+    size_label = f'{round(box[2])} × {round(box[3])}'
+    pill = tw(size_label, 11, mono=True) + 14
+    centre = box[0] + box[2] / 2
+    body += anim(rect(centre - pill / 2, box_bottom + 9, pill, 20, CITRON, 'none', 4)
+                 + text(centre, box_bottom + 23, size_label, 11, GROUND, anchor='middle', mono=True), 'pop', 2.2)
+
+    pointer = (f'<path d="M0 0V17L4.6 12.9L7.6 19.6L10.4 18.4L7.5 11.8H13.4Z" fill="{INK}" stroke="{GROUND}" stroke-width="1.2" stroke-linejoin="round"/>'
+               + rect(13, 18, tw('You', 12, 600) + 18, 22, VIOLET, 'none', 11) + text(22, 33, 'You', 12, GROUND, 600))
+    body += group(box_right + 5, box_bottom + 3, f'<g class="cursor"><g class="idle">{pointer}</g></g>')
+
+    role_y = box_bottom + (62 if mobile else 66)
+    body += anim(text(left, role_y, PROFILE['role'], 22 if mobile else 24, CITRON, 600, spacing=-.3), 'in', .7)
+    body += anim(text(left, role_y + 29, f'Frontend architecture and design systems at {PROFILE["company"]}', 15 if mobile else 16, MUTED, 400), 'in', .85)
+
+    if mobile:
+        card_y = role_y + 60
+        body += group(PAD, card_y, anim(inspector(COLUMN), 'fade', .6))
+        height = card_y + 300 + PAD
+    else:
+        body += group(624, 66, anim(inspector(344), 'fade', .6))
+        height = max(role_y + 29 + 38, 66 + 300 + 30)
+
+    css = ('.cursor{animation:cursor 1.1s cubic-bezier(.2,.8,.2,1) .5s both}.idle{animation:idle 6s ease-in-out 2.6s infinite}'
+           '@keyframes cursor{from{opacity:0;transform:translate(150px,96px)}}@keyframes idle{50%{transform:translate(6px,5px)}}')
+    weeks = activity_metrics()['weeks']
+    panel('hero-mobile.svg' if mobile else 'hero.svg', width, height,
+          f'{PROFILE["name"]}, {PROFILE["role"]}',
+          f'{PROFILE["name"]} is a {PROFILE["role"]} at {PROFILE["company"]}, working on frontend architecture and design systems '
+          f'with React, Next.js and TypeScript. Based in {PROFILE["home"]}. {sum(weeks):,} publicly visible GitHub contributions '
+          f'in the 13 weeks ending {DATA["days"][-1]["date"]}.', body, css)
+
+
+# ── products ─────────────────────────────────────────────────────────────────
+
+def art_passlore():
+    secret = 'kV7#mQ2x!Rt9'
+    body = rect(14, 22, 140, 38, GROUND, LINE, 10)
+    for index, character in enumerate(secret):
+        x = 26 + index * 9.9
+        body += f'<circle cx="{x + 3.6:g}" cy="41" r="1.4" fill="{DIM}" opacity=".5"/>'
+        body += f'<g class="type" style="animation-delay:{index * .22:.2f}s">{rect(x - 1, 31, 10, 20, GROUND)}{text(x, 46, character, 13, INK, mono=True)}</g>'
+    for index in range(4):
+        body += rect(14 + index * 36, 74, 32, 6, LINE, 'none', 3)
+        body += f'<g class="type" style="animation-delay:{.4 + index * .66:.2f}s">{rect(14 + index * 36, 74, 32, 6, CITRON, "none", 3)}</g>'
+    body += text(14, 97, 'Very strong', 11, MUTED, 500)
+    return body, '.type{animation:type 7s steps(1) infinite both}@keyframes type{0%{opacity:0}6%,88%{opacity:1}94%,100%{opacity:0}}'
+
+
+def art_awaketab():
+    around = 2 * math.pi * 30
+    body = f'<circle cx="52" cy="54" r="30" fill="none" stroke="{LINE}" stroke-width="6"/>'
+    body += (f'<circle class="ring" cx="52" cy="54" r="30" fill="none" stroke="{CITRON}" stroke-width="6" stroke-linecap="round" '
+             f'stroke-dasharray="{around:.1f}" transform="rotate(-90 52 54)"/>')
+    body += text(52, 59, '30:00', 13, INK, anchor='middle', mono=True)
+    body += rect(94, 43, 62, 22, GROUND, LINE, 11) + f'<circle class="pulse" cx="105" cy="54" r="3.5" fill="{CITRON}"/>'
+    body += text(113, 58, 'Awake', 11, INK, 500)
+    return body, f'.ring{{animation:ring 9s linear infinite}}@keyframes ring{{from{{stroke-dashoffset:0}}to{{stroke-dashoffset:{around:.1f}}}}}'
+
+
+def art_shareroom():
+    body = ''
+    for x in (12, 96):
+        body += rect(x, 22, 60, 64, GROUND, LINE, 8) + f'<path d="M{x} 36H{x + 60}" stroke="{LINE}"/>'
+        body += f'<circle cx="{x + 9}" cy="29" r="2" fill="{DIM}"/><circle cx="{x + 16}" cy="29" r="2" fill="{DIM}"/>'
+        body += rect(x + 9, 70, 30, 4, LINE, 'none', 2)
+    body += f'<path class="march" d="M72 54H96" stroke="{VIOLET}" stroke-width="2" stroke-dasharray="3 5"/>'
+    body += rect(105, 44, 42, 20, RAISED_2, 'none', 4, 'opacity=".5"')
+    body += f'<g class="pass">{rect(21, 44, 42, 20, CITRON, "none", 4)}<path d="M28 51H50M28 57H42" stroke="{GROUND}" stroke-width="2" stroke-linecap="round"/></g>'
+    return body, '.pass{animation:pass 5s cubic-bezier(.6,0,.2,1) infinite}@keyframes pass{0%,18%{transform:translateX(0)}46%,82%{transform:translateX(84px)}100%{transform:translateX(0)}}'
+
+
+def art_oibuddy():
+    body = rect(118, 26, 30, 52, GROUND, LINE, 6) + f'<g class="water">{rect(121, 30, 24, 45, SKY, "none", 4)}</g>'
+    cat = f'<path d="M36 52L41 28L56 44Z M84 52L79 28L64 44Z" fill="{AMBER}"/><ellipse cx="60" cy="64" rx="27" ry="24" fill="{AMBER}"/>'
+    cat += f'<g class="blink"><ellipse cx="50" cy="60" rx="3" ry="4" fill="{GROUND}"/><ellipse cx="70" cy="60" rx="3" ry="4" fill="{GROUND}"/></g>'
+    cat += f'<path d="M57 68L60 71L63 68" fill="none" stroke="{GROUND}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+    body += f'<g class="peek">{cat}</g>' + rect(0, 78, 168, 30, RAISED_2) + f'<path d="M0 78H168" stroke="{LINE}"/>'
+    return body, ('.peek{animation:peek 6s ease-in-out infinite}.blink{transform-box:fill-box;transform-origin:50% 50%;animation:blink 4s infinite}'
+                  '.water{transform-box:fill-box;transform-origin:50% 100%;animation:water 8s ease-in-out infinite alternate}'
+                  '@keyframes peek{0%,100%{transform:translateY(10px)}35%,70%{transform:translateY(0)}}'
+                  '@keyframes blink{0%,46%,54%,100%{transform:scaleY(1)}50%{transform:scaleY(.1)}}@keyframes water{from{transform:scaleY(.25)}to{transform:scaleY(.95)}}')
+
+
+def art_prismwink():
+    person = f'<circle cx="62" cy="42" r="15" fill="{VIOLET}"/><path d="M32 94C32 72 46 62 62 62S92 72 92 94Z" fill="{VIOLET}"/>'
+    body = rect(14, 16, 140, 78, GROUND, LINE, 10) + f'<g clip-path="url(#tile)"><g class="vanish">{person}</g>'
+    for index in range(14):
+        x, y = 44 + (index * 23) % 44, 30 + (index * 17) % 56
+        body += (f'<rect class="dust" style="animation-delay:{index * .04:.2f}s;--x:{26 + (index * 13) % 40}px;--y:{-(8 + (index * 7) % 26)}px" '
+                 f'x="{x}" y="{y}" width="3.5" height="3.5" rx="1" fill="{PINK if index % 3 else CITRON}"/>')
+    body += '</g>' + f'<circle class="pulse" cx="140" cy="30" r="3.5" fill="{PINK}"/>'
+    return body, ('.vanish{animation:vanish 6s ease-in-out infinite}.dust{opacity:0;animation:dust 6s ease-out infinite}'
+                  '@keyframes vanish{0%,30%{opacity:1}44%,78%{opacity:0}92%,100%{opacity:1}}'
+                  '@keyframes dust{0%,30%{opacity:0;transform:translate(0,0)}36%{opacity:1}62%,100%{opacity:0;transform:translate(var(--x),var(--y))}}')
+
+
+def art_bucketpeek():
+    body = ''
+    for index in range(6):
+        x, y = 16 + (index % 3) * 46, 20 + (index // 3) * 36
+        body += rect(x, y, 40, 30, GROUND, LINE, 6)
+        if index == 1:
+            body += f'<path d="M{x + 16} {y + 9}V{y + 21}L{x + 27} {y + 15}Z" fill="{PINK}"/>'
+        elif index == 3:
+            body += f'<path d="M{x + 7} {y + 22}L{x + 15} {y + 12}L{x + 21} {y + 18}L{x + 26} {y + 13}L{x + 33} {y + 22}Z" fill="{VIOLET}"/>'
+        else:
+            body += f'<path d="M{x + 8} {y + 10}H{x + 30}M{x + 8} {y + 15}H{x + 24}M{x + 8} {y + 20}H{x + 28}" stroke="{DIM}" stroke-width="2" stroke-linecap="round"/>'
+        body += f'<circle class="seen" style="animation-delay:{index * .8:.1f}s" cx="{x + 35}" cy="{y + 5}" r="3.5" fill="{CITRON}"/>'
+    body += f'<rect class="scan" x="14" y="18" width="44" height="34" rx="8" fill="none" stroke="{CITRON}" stroke-width="2"/>'
+    steps = ''.join(f'{index * 13.33:.2f}%{{transform:translate({(index % 3) * 46}px,{(index // 3) * 36}px)}}' for index in range(6))
+    return body, ('.scan{animation:scan 6s steps(1) infinite}.seen{opacity:0;animation:seen 6s steps(1) infinite both}'
+                  f'@keyframes scan{{{steps}80%,100%{{transform:translate(92px,36px);opacity:0}}}}'
+                  '@keyframes seen{0%{opacity:0}12%,92%{opacity:1}100%{opacity:0}}')
+
+
+ART = {'passlore': art_passlore, 'awaketab': art_awaketab, 'shareroom': art_shareroom,
+       'oibuddy': art_oibuddy, 'prismwink': art_prismwink, 'bucketpeek': art_bucketpeek}
+
+
+def project_card(project, mobile=False):
+    width = 500 if mobile else 1000
+    art, css = ART[project['art']]()
+    body = f'<clipPath id="tile"><rect width="168" height="108" rx="14"/></clipPath>'
+    body += group(20, 20, rect(0, 0, 168, 108, RAISED, LINE, 14) + f'<g clip-path="url(#tile)">{art}</g>')
+    x = 212
+    body += text(x, 54 if mobile else 52, project['name'], 26, INK, 700, spacing=-.5)
+    kind_x, kind_y = (x, 68) if mobile else (x + tw(project['name'], 26, 700) - .5 * len(project['name']) + 12, 34)
+    body += chip(kind_x, kind_y, project['kind'], 11, 'none', MUTED)[0]
+    button = (f'<circle cx="0" cy="0" r="21" fill="{RAISED}" stroke="{CITRON}" stroke-opacity=".6"/>'
+              f'<g class="nudge">{arrow(0, 0)}</g>')
+    if mobile:
+        lines = wrap(project['summary'], 15, 400, width - 2 * PAD - 8)
+        y = 162
+        for line in lines:
+            body += text(24, y, line, 15, MUTED, 400)
+            y += 22
+        chips_y = y - 4
+        cursor = 24
+        for label in project['stack']:
+            drawn, used = chip(cursor, chips_y, label, 11)
+            body += drawn
+            cursor += used + 6
+        footer = chips_y + (44 if project['stack'] else 12)
+        body += text(24, footer + 5, project['link'], 13, INK, 600)
+        body += group(width - 46, footer, button)
+        height = footer + 44
+    else:
+        limit = 560
+        lines = wrap(project['summary'], 15, 400, limit)[:2]
+        for index, line in enumerate(lines):
+            body += text(x, 78 + index * 21, line, 15, MUTED, 400)
+        cursor, chips_y = x, 78 + len(lines) * 21 - 6
+        for label in project['stack']:
+            drawn, used = chip(cursor, chips_y, label, 11)
+            body += drawn
+            cursor += used + 6
+        body += group(width - 54, 60, button)
+        body += text(width - PAD, 116, project['link'], 13, MUTED, 500, 'end')
+        height = 148
+    name = f'project-{project["art"]}' + ('-mobile' if mobile else '') + '.svg'
+    panel(name, width, height, f'{project["name"]}: {project["kind"].lower()}',
+          f'{project["summary"]} {project["detail"]}' + (f' Built with {", ".join(project["stack"])}.' if project['stack'] else ''), body, css)
+
+
+# ── engineering pulse ────────────────────────────────────────────────────────
+
+def kpi_tile(width, label, value, note, delay, suffix=''):
+    body = rect(0, 0, width, 100, RAISED, LINE, 14) + text(18, 28, label, 13, MUTED, 400)
+    number, used = odometer(18, 68, value, 36, INK, 700, delay)
+    body += number
+    if suffix:
+        body += text(18 + used + 6, 68, suffix, 15, MUTED, 500)
+    return body + text(18, 88, note, 12, DIM, 400)
+
+
+def daily_chart(width):
+    """Daily bars for the latest 13 weeks with a trailing seven-day average."""
+    days = DATA['days'][-91:]
+    counts = [day['count'] for day in days]
+    average = rolling_average([day['count'] for day in DATA['days']])
+    ceiling, step = nice_ceiling(max(counts))
+    left, top, base = 44, 78, 300
+    plot = width - left
+    pitch = plot / len(days)
+    bar = max(2.4, pitch - 2)
+    body = block_title('Daily contributions', f'{short_date(days[0]["date"])} to {long_date(days[-1]["date"])}, with a 7-day average')
+    value = 0
+    while value <= ceiling:
+        y = base - (base - top) * value / ceiling
+        body += f'<path d="M{left} {y:g}H{width}" stroke="{LINE}" stroke-opacity="{1 if not value else .55}"/>'
+        body += text(left - 8, y + 4, f'{value:,}', 11, DIM, anchor='end', mono=True)
+        value += step
+    peak = max(range(len(days)), key=lambda index: counts[index])
+    for index, day in enumerate(days):
+        x = left + index * pitch + (pitch - bar) / 2
+        if day['count']:
+            height = max(1.5, (base - top) * day['count'] / ceiling)
+            latest = index == len(days) - 1
+            mark = rect(x, base - height, bar, height, CITRON if latest else VIOLET, 'none', min(2, bar / 2), 'class="day-bar"')
+            mark = f'<g class="glint" style="animation-delay:{4 + index * .035:.2f}s">{mark}</g>'
+            body += tip(anim(mark, 'gy', .3 + index * .012), f'{long_date(day["date"])}: {day["count"]:,} contributions')
+        if date.fromisoformat(day['date']).day == 1:
+            body += f'<path d="M{left + index * pitch:g} {base}v5" stroke="{DIM}"/>'
+            body += text(left + index * pitch, base + 20, f'{date.fromisoformat(day["date"]):%b}', 11, DIM, mono=True)
+    points = [(left + index * pitch + pitch / 2, base - (base - top) * value / ceiling) for index, value in enumerate(average)]
+    trace = 'M' + 'L'.join(f'{x:.1f} {y:.1f}' for x, y in points)
+    body += anim(f'<path d="{trace}L{points[-1][0]:.1f} {base}L{points[0][0]:.1f} {base}Z" fill="url(#wash)"/>', 'fade', 1.2)
+    body += f'<path class="redraw" pathLength="1" d="{trace}" fill="none" stroke="{PINK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+    body += (f'<circle class="motion" r="3.5" fill="{PINK}" stroke="{GROUND}" stroke-width="1.5">'
+             f'<animateMotion dur="12s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.16;1" calcMode="linear" path="{trace}"/></circle>')
+    if counts[peak]:
+        px = left + peak * pitch + pitch / 2
+        py = base - (base - top) * counts[peak] / ceiling
+        label = f'{counts[peak]:,} on {short_date(days[peak]["date"])}'
+        label_width = tw(label, 12, 600) + 16
+        lx = min(max(px - label_width - 10, left), width - label_width)
+        body += anim(rect(lx, py - 11, label_width, 22, RAISED_2, LINE, 11) + text(lx + 8, py + 4, label, 12, INK, 600), 'pop', 1.7)
+        body += f'<circle class="ping motion" cx="{px:g}" cy="{py:g}" r="4" fill="{CITRON}"/>'
+    legend_y = base + 46
+    body += rect(left, legend_y - 9, 10, 10, VIOLET, 'none', 2) + text(left + 16, legend_y, 'Daily', 12, MUTED, 400)
+    body += rect(left + 62, legend_y - 9, 10, 10, CITRON, 'none', 2) + text(left + 78, legend_y, 'Latest day', 12, MUTED, 400)
+    body += f'<path d="M{left + 156} {legend_y - 4}h16" stroke="{PINK}" stroke-width="2" stroke-linecap="round"/>' + text(left + 178, legend_y, '7-day average', 12, MUTED, 400)
+    return body, legend_y + 8
+
+
+def momentum_card(width):
+    metrics = activity_metrics()
+    days = DATA['days']
+    inner = width - 44
+    label, note = momentum(metrics['last30'], metrics['previous30'])
+    body = rect(0, 0, width, 338, RAISED, LINE, 16) + text(22, 34, '30-day momentum', 15, INK, 600)
+    body += anim(text(22, 88, label, 46, INK, 700, spacing=-1.5), 'in', .5)
+    body += text(22 + tw(label, 46, 700) - 1.5 * len(label) + 12, 88, note, 13, MUTED, 400)
+    peak = max(1, metrics['last30'], metrics['previous30'])
+    periods = ((days[-30:], metrics['last30'], metrics['active30'], CITRON),
+               (days[-60:-30], metrics['previous30'], metrics['previous_active30'], VIOLET))
+    pitch = inner / 30
+    for index, (period, total, active, color) in enumerate(periods):
+        y = 124 + index * 104
+        if not period:
+            continue
+        body += text(22, y, f'{short_date(period[0]["date"])} to {short_date(period[-1]["date"])}', 13, MUTED, 400)
+        body += text(width - 22, y, f'{total:,}', 15, INK, 600, 'end')
+        body += rect(22, y + 10, inner, 8, LINE, 'none', 4)
+        if total:
+            body += tip(anim(rect(22, y + 10, max(8, inner * total / peak), 8, color, 'none', 4, 'class="period-bar"'), 'gx', .7 + index * .15),
+                        f'{total:,} contributions')
+        for day_index, day in enumerate(period):
+            x = 22 + day_index * pitch + pitch / 2
+            dot = f'<circle cx="{x:g}" cy="{y + 36}" r="{min(3.4, pitch / 2 - 1):g}" fill="{color if day["count"] else LINE}"/>'
+            if day['count']:
+                dot = f'<g class="glint" style="animation-delay:{5 + day_index * .06:.2f}s">{dot}</g>'
+            body += tip(anim(dot, 'pop', 1 + index * .2 + day_index * .02), f'{long_date(day["date"])}: {day["count"]:,} contributions')
+        body += text(22, y + 60, f'{active} of {len(period)} days active', 12, DIM, 400)
+    return body
+
+
+def pulse(mobile=False):
+    width = 500 if mobile else 1000
+    metrics = activity_metrics()
+    days = DATA['days']
+    busiest = max(days, key=lambda day: day['count'])
+    body, top = heading('Activity at a glance', f'Public GitHub activity through {long_date(days[-1]["date"])}', width)
+    tiles = (
+        ('Contributions', f'{DATA["contributions"]:,}', 'in the past 12 months', ''),
+        ('Active days', f'{metrics["active"]:,}', f'{metrics["active30"]} of them in the last 30 days', ''),
+        ('Longest streak', f'{metrics["longest"]:,}', 'active days in a row', 'days'),
+        ('Busiest day', f'{busiest["count"]:,}', long_date(busiest['date']) if busiest['count'] else 'No activity yet', ''),
+    )
+    tile_width = 210 if mobile else 222
+    for index, (label, value, note, suffix) in enumerate(tiles):
+        column, row = (index % 2, index // 2) if mobile else (index, 0)
+        body += group(PAD + column * (tile_width + 16), top + row * 116, anim(kpi_tile(tile_width, label, value, note, .3 + index * .15, suffix), 'in', index * .08))
+    top += 232 + 26 if mobile else 100 + 30
+    chart, chart_height = daily_chart(COLUMN if mobile else 600)
+    body += group(PAD, top, chart)
+    if mobile:
+        body += group(PAD, top + chart_height + 28, momentum_card(COLUMN))
+        height = top + chart_height + 28 + 338 + PAD
+    else:
+        body += group(672, top, momentum_card(296))
+        height = top + max(chart_height, 338) + PAD
+    label, note = momentum(metrics['last30'], metrics['previous30'])
+    panel('pulse-mobile.svg' if mobile else 'pulse.svg', width, height, 'Public GitHub activity at a glance',
+          f'{DATA["contributions"]:,} contributions on {metrics["active"]} active days in the past 12 months, with a longest streak of '
+          f'{metrics["longest"]} days. Busiest day: {busiest["count"]:,} contributions on {busiest["date"]}. Latest 30 days: '
+          f'{metrics["last30"]:,} contributions on {metrics["active30"]} active days; previous 30 days: {metrics["previous30"]:,} '
+          f'on {metrics["previous_active30"]}. A bar chart shows each of the latest 91 days with a seven-day average line.', body)
+
+
+# ── rhythm and commit volume ─────────────────────────────────────────────────
+
+def bubble_matrix(width):
+    days = DATA['days'][-91:]
+    metrics = activity_metrics()
+    peak = max(1, max(day['count'] for day in days))
+    left, top, row = 44, 84, 28
+    pitch = (width - left) / 13
+    body = block_title('Weekly rhythm', 'One bubble per day; area shows contributions')
+    for weekday, label in enumerate(WEEKDAYS):
+        body += text(0, top + weekday * row + 4, label, 12, DIM, 400)
+    for index, day in enumerate(days):
+        column = index // 7
+        weekday = date.fromisoformat(day['date']).weekday()
+        x, y = left + column * pitch + pitch / 2, top + weekday * row
+        if day['count']:
+            radius = max(2.4, 12.5 * math.sqrt(day['count'] / peak))
+            top_day = day['count'] == peak
+            bubble = f'<circle class="bubble" cx="{x:g}" cy="{y:g}" r="{radius:.2f}" fill="{CITRON if top_day else VIOLET}" fill-opacity="{1 if top_day else .82}" stroke="{GROUND}"/>'
+            bubble = f'<g class="breathe" style="animation-delay:{3 + column * .12 + weekday * .05:.2f}s">{bubble}</g>'
+            body += tip(anim(bubble, 'pop', .3 + column * .05 + weekday * .02), f'{WEEKDAYS[weekday]}, {long_date(day["date"])}: {day["count"]:,} contributions')
+        else:
+            body += f'<circle cx="{x:g}" cy="{y:g}" r="1.3" fill="{LINE}"/>'
+    label_y = top + 6 * row + 30
+    for column in (0, 4, 8, 12):
+        if column * 7 < len(days):
+            body += text(left + column * pitch + pitch / 2, label_y, short_date(days[column * 7]['date']), 11, DIM, anchor='middle', mono=True)
+    best = max(range(7), key=lambda weekday: (metrics['weekdays'][weekday], -weekday))
+    note = (f'{WEEKDAYS[best]} is the most regular day: active in {metrics["weekdays"][best]} of 13 weeks'
+            if metrics['weekdays'][best] else 'No activity in these 13 weeks')
+    body += text(0, label_y + 32, note, 13, MUTED, 400)
+    return body, label_y + 40
+
+
+def commit_volume(width):
+    totals = commit_totals()
+    weeks = weekly_commits()
+    body = block_title('Commit volume', f'Default branches of {COMMIT_ACTIVITY["repositories"]} public repositories, past 12 months')
+    stats = ((f'{totals["commits"]:,}', 'commits'), (f'+{compact(totals["additions"])}', 'lines added'), (f'−{compact(totals["deletions"])}', 'lines removed'))
+    for index, (value, label) in enumerate(stats):
+        x = index * (width / 3)
+        body += anim(text(x, 92, value, 26, INK, 700, spacing=-.5) + text(x, 112, label, 12, MUTED, 400), 'in', .2 + index * .1)
+    peak = max([1] + [max(week['additions'], week['deletions']) for week in weeks])
+    ceiling, _ = nice_ceiling(peak, 4)
+    left, centre, reach = 52, 214, 62
+    pitch = (width - left) / 13
+    for value, y in ((ceiling, centre - reach), (0, centre), (-ceiling, centre + reach)):
+        body += f'<path d="M{left} {y}H{width}" stroke="{LINE}" stroke-opacity="{1 if not value else .55}"/>'
+        label = '0' if not value else ('+' if value > 0 else '−') + compact(abs(value))
+        body += text(left - 8, y + 4, label, 11, DIM, anchor='end', mono=True)
+    for index, week in enumerate(weeks):
+        x = left + index * pitch + (pitch - 14) / 2
+        span = f'{short_date(week["start"])} to {short_date(week["end"])}'
+        if week['additions']:
+            height = max(1.5, reach * week['additions'] / ceiling)
+            bar = rect(x, centre - height - 1, 14, height, CITRON, 'none', 3, 'class="added-bar"')
+            body += tip(anim(f'<g class="glint" style="animation-delay:{4.5 + index * .12:.2f}s">{bar}</g>', 'gy', .5 + index * .05),
+                        f'{span}: {week["additions"]:,} lines added in {week["commits"]:,} commits')
+        if week['deletions']:
+            height = max(1.5, reach * week['deletions'] / ceiling)
+            bar = rect(x, centre + 1, 14, height, PINK, 'none', 3, 'class="removed-bar"')
+            body += tip(anim(f'<g class="glint" style="animation-delay:{4.5 + index * .12:.2f}s">{bar}</g>', 'gd', .5 + index * .05),
+                        f'{span}: {week["deletions"]:,} lines removed in {week["commits"]:,} commits')
+    label_y = centre + reach + 24
+    for column in (0, 4, 8, 12):
+        if column < len(weeks):
+            body += text(left + column * pitch + pitch / 2, label_y, short_date(weeks[column]['start']), 11, DIM, anchor='middle', mono=True)
+    legend_y = label_y + 32
+    body += rect(0, legend_y - 9, 10, 10, CITRON, 'none', 2) + text(16, legend_y, 'Lines added per week', 12, MUTED, 400)
+    body += rect(166, legend_y - 9, 10, 10, PINK, 'none', 2) + text(182, legend_y, 'Lines removed', 12, MUTED, 400)
+    return body, legend_y + 8
+
+
+def rhythm(mobile=False):
+    width = 500 if mobile else 1000
+    days = DATA['days'][-91:]
+    metrics = activity_metrics()
+    totals = commit_totals()
+    left, left_height = bubble_matrix(COLUMN)
+    right, right_height = commit_volume(COLUMN)
+    if mobile:
+        body = group(PAD, 40, left) + group(PAD, 40 + left_height + 40, right)
+        height = 40 + left_height + 40 + right_height + PAD
+    else:
+        body = group(PAD, 40, left) + f'<path d="M500 40V{40 + max(left_height, right_height) - 8}" stroke="{LINE}"/>' + group(532, 40, right)
+        height = 40 + max(left_height, right_height) + PAD
+    panel('rhythm-mobile.svg' if mobile else 'rhythm.svg', width, height, 'Weekly rhythm and commit volume',
+          f'Bubble chart of daily contributions by weekday for the 13 weeks from {days[0]["date"]} to {days[-1]["date"]}. '
+          f'Active days by weekday starting Monday: {", ".join(map(str, metrics["weekdays"]))}. '
+          f'Commit snapshot: {totals["commits"]:,} commits, {totals["additions"]:,} lines added and {totals["deletions"]:,} lines removed '
+          f'on the default branches of {COMMIT_ACTIVITY["repositories"]} public repositories.', body)
+
+
+def months(mobile=False):
+    """Month-by-month totals for the whole calendar, shown inside an expandable section."""
+    width = 500 if mobile else 1000
+    grouped = [(key, list(days)) for key, days in groupby(DATA['days'], lambda day: day['date'][:7])]
+    totals = [sum(day['count'] for day in days) for _, days in grouped]
+    ceiling, step = nice_ceiling(max(totals))
+    left, top, base = PAD + 44, 104, 300
+    pitch = (width - PAD - left) / len(grouped)
+    bar = min(40, pitch * .62)
+    body, _ = heading('Month by month', 'Contributions in each month of the calendar', width)
+    if mobile:
+        top, base = 126, 322
+    value = 0
+    while value <= ceiling:
+        y = base - (base - top) * value / ceiling
+        body += f'<path d="M{left} {y:g}H{width - PAD}" stroke="{LINE}" stroke-opacity="{1 if not value else .55}"/>'
+        body += text(left - 8, y + 4, f'{value:,}', 11, DIM, anchor='end', mono=True)
+        value += step
+    for index, ((key, days), total) in enumerate(zip(grouped, totals)):
+        x = left + index * pitch + (pitch - bar) / 2
+        month = date.fromisoformat(key + '-01')
+        latest = index == len(grouped) - 1
+        if total:
+            height = max(2, (base - top) * total / ceiling)
+            mark = rect(x, base - height, bar, height, CITRON if latest else VIOLET, 'none', 4, 'class="month-bar"')
+            body += tip(anim(f'<g class="glint" style="animation-delay:{4 + index * .15:.2f}s">{mark}</g>', 'gy', .2 + index * .06),
+                        f'{month:%B %Y}: {total:,} contributions on {sum(day["count"] > 0 for day in days)} active days')
+            if not mobile or total >= ceiling * .08:
+                body += anim(text(x + bar / 2, base - height - 8, compact(total) if mobile else f'{total:,}', 11 if mobile else 12, INK, 600, 'middle'), 'in', .5 + index * .06)
+        body += text(x + bar / 2, base + 20, f'{month:%b}', 11, MUTED if total else DIM, anchor='middle', mono=True)
+        if month.month == 1 or index == 0:
+            body += text(x + bar / 2, base + 36, f'{month:%Y}', 10, DIM, anchor='middle', mono=True)
+    panel('months-mobile.svg' if mobile else 'months.svg', width, base + 62, 'Contributions month by month',
+          'Monthly contribution totals: ' + '; '.join(f'{date.fromisoformat(key + "-01"):%b %Y} {total:,}' for (key, _), total in zip(grouped, totals)) + '.', body)
+
+
+# ── code ─────────────────────────────────────────────────────────────────────
+
+def repository_inventory():
+    path = ROOT / 'assets/repository-inventory.json'
+    return json.loads(path.read_text()) if path.is_file() else None
+
+
+def treemap(width):
+    categories = language_categories()
+    repos = sorted(((repo, sum(repo.get('languages', {}).values())) for repo in DATA['repos']), key=lambda item: -item[1])
+    repos = [(repo, size) for repo, size in repos if size]
+    total = sum(size for _, size in repos)
+    body = block_title('Where the code lives', f'{len(repos)} public repositories, sized by detected code bytes')
+    if not repos:
+        return body + text(0, 96, 'No language bytes in this snapshot', 14, MUTED, 400), 110
+    cells = squarify([(index, size) for index, (_, size) in enumerate(repos)], 0, 62, width, 258)
+    for order, (index, x, y, w, h) in enumerate(cells):
+        repo, size = repos[index]
+        segments = language_segments(repo['languages'], categories)
+        color = segments[0][2] if segments else OTHER
+        clip = f'c{next(_ids)}'
+        cell = f'<clipPath id="{clip}"><rect x="{x + 1.5:g}" y="{y + 1.5:g}" width="{max(0, w - 3):g}" height="{max(0, h - 3):g}" rx="6"/></clipPath>'
+        cell += rect(x + 1.5, y + 1.5, w - 3, h - 3, RAISED_2, color + '73', 6, 'class="cell"')
+        strip, offset = '', x + 1.5
+        for _, amount, segment_color in segments:
+            span = (w - 3) * amount / size
+            strip += rect(offset, y + h - 9.5, span, 8, segment_color)
+            offset += span
+        cell += f'<g clip-path="url(#{clip})">{strip}'
+        if w > 96 and h > 54:
+            cell += text(x + 14, y + 30, repo['name'], 15, INK, 600) + text(x + 14, y + 50, f'{size / total:.0%} of bytes', 12, MUTED, 400)
+        elif h > 26 and tw(repo['name'], 12, 600) <= w - 18:
+            cell += text(x + 10, y + 22, repo['name'], 12, INK, 600)
+        cell += '</g>'
+        cell = f'<g class="glint" style="animation-delay:{4 + order * .35:.2f}s">{cell}</g>'
+        mix = ', '.join(f'{name} {amount / size:.0%}' for name, amount, _ in segments)
+        body += tip(anim(cell, 'pop', .2 + order * .08), f'{repo["name"]}: {size / total:.1%} of public code bytes ({mix})')
+    return body, 62 + 258 + 4
+
+
+def language_list(width):
     categories = language_categories()
     aggregate = language_segments(DATA['languages'], categories)
-    count = len(DATA['repos'])
     total = sum(amount for _, amount, _ in aggregate)
-    composition = text(0, 28, 'The public codebase', 25, INK)
-    composition += text(0, 55, f'Language share across {count} owned repositories', 13, MUTED)
-    composition += language_strip(aggregate, 80)
-    for index, (name, amount, color) in enumerate(aggregate):
-        y = 127 + index*27
-        composition += f'<circle cx="5" cy="{y-4}" r="4" fill="{color}"/>'
-        composition += text(18, y, name, 14, INK)
-        composition += text(435, y, f'{amount/total:.1%}', 14, INK, extra='text-anchor="end"')
+    body = block_title('Languages', 'Share of code bytes across public repositories')
     if not aggregate:
-        composition += text(0, 127, 'No language bytes in this snapshot', 14, MUTED)
+        body += text(0, 84, 'No language bytes in this snapshot', 14, MUTED, 400)
+    track = width - 196
+    for index, (name, amount, color) in enumerate(aggregate):
+        y = 82 + index * 26
+        body += f'<circle cx="5" cy="{y - 4}" r="5" fill="{color}"/>' + text(18, y, name, 14, INK, 500)
+        body += rect(132, y - 9, track, 8, LINE, 'none', 4)
+        body += tip(anim(rect(132, y - 9, max(3, track * amount / total), 8, color, 'none', 4, 'class="language-bar"'), 'gx', .4 + index * .1),
+                    f'{name}: {amount:,} bytes')
+        body += text(width, y, f'{amount / total:.1%}', 13, INK, 500, 'end')
+    y = 82 + max(1, len(aggregate)) * 26 + 22
+    inventory = repository_inventory()
+    if inventory:
+        body += f'<path d="M0 {y - 20}H{width}" stroke="{LINE}"/>'
+        body += text(0, y + 14, f'{inventory["total"]:,} repositories', 19, INK, 600, spacing=-.2)
+        body += text(width, y + 14, f'{inventory["public"]:,} public, {inventory["private"] + inventory["internal"]:,} private', 13, MUTED, 400, 'end')
+        columns = max(1, int((width + 6) // 17))
+        shown = min(inventory['total'], columns * 4)
+        for index in range(shown):
+            x, row = 6 + (index % columns) * 17, index // columns
+            public = index < inventory['public']
+            dot = f'<circle cx="{x}" cy="{y + 42 + row * 17}" r="5.5" fill="{CITRON if public else VIOLET}" fill-opacity="{1 if public else .45}"/>'
+            if public:
+                dot = f'<g class="glint" style="animation-delay:{5 + index * .2:.2f}s">{dot}</g>'
+            body += anim(dot, 'pop', .8 + index * .012)
+        y += 42 + ((shown - 1) // columns) * 17 + 14
+    return body, y
 
-    repositories = {repo['name']: repo.get('languages', {}) for repo in DATA['repos']}
-    projects = text(0, 28, 'Featured repository languages', 25, INK)
-    projects += text(0, 55, 'Share of detected code bytes in each repository', 13, MUTED)
-    descriptions = []
-    for project in FEATURED:
-        breakdown = repositories.get(project['slug'], {})
-        size = sum(breakdown.values())
-        if not size:
-            continue
-        label = project['name']
-        y = 92 + len(descriptions)*72
-        leader = max(breakdown, key=breakdown.get)
-        detail = f'{leader} {breakdown[leader]/size:.0%}'
-        projects += text(0, y, label, 17, INK)
-        projects += text(435, y, detail, 12, MUTED, extra='text-anchor="end"')
-        projects += language_strip(language_segments(breakdown, categories), y+15)
-        descriptions.append(f'{label}: {detail}')
 
+def codebase(mobile=False):
     width = 500 if mobile else 1000
-    composition_height = max(127, 127 + (len(aggregate)-1)*27) + 50
-    projects_height = 92 + max(0, len(descriptions)-1)*72 + 52
-    if not descriptions:
-        body = group((width-436)//2, 28, composition)
-        height = composition_height
-    elif mobile:
-        body = group(32, 28, composition) + group(32, composition_height+10, projects)
-        height = composition_height + projects_height + 10
+    categories = language_categories()
+    aggregate = language_segments(DATA['languages'], categories)
+    total = sum(amount for _, amount, _ in aggregate)
+    left, left_height = treemap(COLUMN)
+    right, right_height = language_list(COLUMN)
+    if mobile:
+        body = group(PAD, 40, left) + group(PAD, 40 + left_height + 40, right)
+        height = 40 + left_height + 40 + right_height + PAD
     else:
-        projects_top = 28 + (composition_height-projects_height)//2
-        body = group(32, 28, composition) + group(532, max(28, projects_top), projects)
-        height = max(composition_height, projects_height)
-
-    summary = '; '.join(f'{name} {amount/total:.1%}' for name, amount, _ in aggregate)
-    description = f'{count} owned public repositories, excluding forks. Share of code bytes: {summary or "no language bytes in this snapshot"}.'
-    if descriptions:
-        description += ' Featured repositories: ' + '; '.join(descriptions) + '.'
-    svg('codebase-mobile.svg' if mobile else 'codebase.svg', width, height,
-        'Language composition across public repositories', description, body)
+        body = group(PAD, 40, left) + group(532, 40, right)
+        height = 40 + max(left_height, right_height) + PAD
+    summary = '; '.join(f'{name} {amount / total:.1%}' for name, amount, _ in aggregate) or 'no language bytes in this snapshot'
+    inventory = repository_inventory()
+    description = f'{len(DATA["repos"])} owned public repositories, excluding forks. Share of code bytes: {summary}.'
+    if inventory:
+        description += f' {inventory["total"]} owned repositories in total: {inventory["public"]} public and {inventory["private"] + inventory["internal"]} private.'
+    panel('codebase-mobile.svg' if mobile else 'codebase.svg', width, height, 'Code across public repositories', description, body)
 
 
-def activity_table():
+# ── how I build ──────────────────────────────────────────────────────────────
+
+def craft(mobile=False):
+    width = 500 if mobile else 1000
+    body, top = heading('One system, many products', 'Shared tokens, themes and React components feed every interface I build', width)
+    if mobile:
+        body = text(PAD, 60, 'One system, many products', 28, INK, 700, spacing=-.6)
+        for index, line in enumerate(wrap('Shared tokens, themes and React components feed every interface I build', 13, 400, COLUMN)):
+            body += text(PAD, 84 + index * 18, line, 13, MUTED, 400)
+        top = 122
+
+    def stage(title, inner):
+        return rect(0, 0, 208, 200, RAISED, LINE, 16) + text(18, 30, title, 14, INK, 600) + inner
+
+    tokens = ''.join(f'<circle class="pulse" style="animation-delay:{index * .4:.1f}s" cx="{30 + index * 30}" cy="66" r="11" fill="{color}"/>' for index, color in enumerate((CITRON, PINK, VIOLET, AMBER)))
+    tokens += text(18, 122, 'Aa', 30, INK, 700) + text(66, 122, 'Aa', 21, MUTED, 500) + text(100, 122, 'Aa', 14, DIM, 400)
+    tokens += ''.join(rect(18 + offset, 148, size, 10, VIOLET, 'none', 3, 'fill-opacity=".8"') for offset, size in ((0, 8), (16, 16), (40, 32), (80, 64)))
+    tokens += text(18, 182, 'Color, type, spacing', 12, DIM, 400)
+
+    themes = rect(18, 48, 172, 54, '#f7f5ff', 'none', 10) + rect(30, 60, 60, 8, '#17162e', 'none', 4) + rect(30, 76, 96, 6, '#8a86ad', 'none', 3) + rect(142, 60, 36, 30, CITRON, 'none', 8)
+    themes += rect(18, 110, 172, 54, GROUND, LINE, 10) + rect(30, 122, 60, 8, INK, 'none', 4) + rect(30, 138, 96, 6, DIM, 'none', 3) + rect(142, 122, 36, 30, VIOLET, 'none', 8)
+    themes += text(18, 182, 'Light, dark, brand', 12, DIM, 400)
+
+    components = rect(18, 48, 84, 30, CITRON, 'none', 15) + text(60, 68, 'Button', 13, GROUND, 600, 'middle')
+    components += rect(110, 48, 80, 30, 'none', LINE, 8) + f'<path class="caret" d="M122 56v14" stroke="{CITRON}" stroke-width="2"/>'
+    components += rect(18, 90, 18, 18, VIOLET, 'none', 5) + f'<path d="M22.5 99l3.5 3.5 6-7" fill="none" stroke="{GROUND}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' + rect(46, 95, 70, 8, LINE, 'none', 4)
+    components += rect(18, 120, 172, 40, RAISED_2, LINE, 10) + rect(30, 131, 70, 7, MUTED, 'none', 3.5) + rect(30, 145, 110, 6, DIM, 'none', 3) + f'<circle cx="170" cy="140" r="9" fill="{PINK}"/>'
+    components += text(18, 182, 'Accessible React parts', 12, DIM, 400)
+
+    products = ''
+    for index, label in enumerate(('Annotation tools', 'Onboarding flows', 'Schema-driven forms', 'Assessments')):
+        y = 46 + index * 36
+        products += anim(rect(18, y, 172, 28, RAISED_2, LINE, 8) + f'<circle cx="34" cy="{y + 14}" r="4" fill="{SERIES[index]}"/>' + text(48, y + 19, label, 13, INK, 500), 'in', 1 + index * .12)
+
+    stages = (('Tokens', tokens), ('Themes', themes), ('Components', components), ('Products', products))
+    if mobile:
+        pitch = 234
+        for index, (title, inner) in enumerate(stages):
+            body += group((width - 208) / 2, top + index * pitch, anim(stage(title, inner), 'in', index * .15))
+            if index < len(stages) - 1:
+                y = top + index * pitch + 200
+                body += f'<path d="M250 {y}v34" stroke="{LINE}" stroke-width="2"/><path class="march" d="M250 {y}v34" stroke="{CITRON}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 19"/>'
+        height = top + 3 * pitch + 200 + PAD
+    else:
+        pitch = 242.7
+        for index, (title, inner) in enumerate(stages):
+            body += group(PAD + index * pitch, top + 14, anim(stage(title, inner), 'in', index * .15))
+            if index < len(stages) - 1:
+                x, y = PAD + index * pitch + 208, top + 114
+                body += f'<path d="M{x:g} {y}h34.7" stroke="{LINE}" stroke-width="2"/><path class="march" d="M{x:g} {y}h34.7" stroke="{CITRON}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 19"/>'
+        height = top + 14 + 200 + PAD
+    panel('craft-mobile.svg' if mobile else 'craft.svg', width, height, 'One design system feeding many products',
+          'Flow diagram: design tokens for color, type and spacing feed light, dark and brand themes, which feed accessible React components, '
+          'which feed annotation tools, onboarding flows, schema-driven forms and assessments.', body,
+          '.caret{animation:caret 1.1s steps(1) infinite}@keyframes caret{50%{opacity:0}}')
+
+
+# ── stack ────────────────────────────────────────────────────────────────────
+
+def stack(mobile=False):
+    width = 500 if mobile else 1000
+    css = ''
+    orbit = block_title('Frontend, in motion', 'The tools in daily rotation')
+    centre_x, centre_y = 218, 252
+    orbit += f'<circle cx="{centre_x}" cy="{centre_y}" r="200" fill="url(#glow)"/>'
+    for angle in (-28, 28, 90):
+        orbit += f'<ellipse cx="{centre_x}" cy="{centre_y}" rx="186" ry="74" transform="rotate({angle} {centre_x} {centre_y})" fill="none" stroke="{LINE}" stroke-width="1.2"/>'
+    orbit += f'<circle cx="{centre_x}" cy="{centre_y}" r="44" fill="{RAISED_2}" stroke="{VIOLET}" stroke-opacity=".7"/>'
+    orbit += f'<path d="M{centre_x - 14} {centre_y - 17}l-15 17 15 17M{centre_x + 14} {centre_y - 17}l15 17-15 17" fill="none" stroke="{CITRON}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
+    names = ['typescript', 'nextdotjs', 'javascript', 'tailwindcss', 'git', 'redux', 'react']
+    for index, name in enumerate(names):
+        angle = math.radians((-28, 28, 90)[(index // 2) % 3])
+        phase = index * math.tau / 7
+        frames = []
+        for step in range(25):
+            a = phase + step * math.tau / 24
+            x, y = 186 * math.cos(a), 74 * math.sin(a)
+            frames.append(f'{step / 24 * 100:.3f}%{{transform:translate({centre_x + x * math.cos(angle) - y * math.sin(angle):.2f}px,{centre_y + x * math.sin(angle) + y * math.cos(angle):.2f}px)}}')
+        css += f'@keyframes orbit{index}{{' + ''.join(frames) + '}'
+        start = frames[0].split('{', 1)[1].rstrip('}')
+        orbit += f'<g style="animation:orbit{index} {22 + index * 2}s linear infinite;{start}">'
+        orbit += rect(-22, -22, 44, 44, RAISED, LINE, 12) + icon(name, -13, -13, 26, SERIES[index % 3]) + '</g>'
+    grid = block_title('Tools I work with', 'Grouped by where they sit in the work')
+    groups = (('Foundations', (('javascript', 'JavaScript'), ('typescript', 'TypeScript'), ('html5', 'HTML'), ('css', 'CSS'))),
+              ('Interfaces', (('react', 'React'), ('nextdotjs', 'Next.js'), ('tailwindcss', 'Tailwind CSS'), ('sass', 'SCSS'))),
+              ('State and workflow', (('redux', 'Redux Toolkit'), ('git', 'Git'))))
+    y = 86
+    order = 0
+    for label, items in groups:
+        grid += text(0, y, label, 13, MUTED, 500)
+        for index, (name, title) in enumerate(items):
+            x, row = (index % 2) * 222, y + 14 + (index // 2) * 44
+            grid += anim(rect(x, row, 214, 36, RAISED, LINE, 10) + icon(name, x + 12, row + 9, 18, CITRON) + text(x + 42, row + 23, title, 14, INK, 500), 'in', .2 + order * .06)
+            order += 1
+        y += 14 + math.ceil(len(items) / 2) * 44 + 28
+    if mobile:
+        body = group(PAD, 40, orbit) + group(PAD, 40 + 470, grid)
+        height = 40 + 470 + y - 14 + PAD
+    else:
+        body = group(PAD, 40, orbit) + group(532, 40, grid)
+        height = 40 + 458 + PAD
+    panel('stack-mobile.svg' if mobile else 'stack.svg', width, height, 'Frontend engineering stack',
+          'React, Next.js, TypeScript, JavaScript, HTML, CSS, Tailwind CSS, SCSS, Redux Toolkit and Git. Technology icons travel around elliptical orbits.', body, css)
+
+
+# ── connect ──────────────────────────────────────────────────────────────────
+
+def connect(mobile=False):
+    width = 500 if mobile else 1000
+    left = text(PAD, 70, 'Good interfaces begin', 34, INK, 700, spacing=-.8) + text(PAD, 112, 'with good questions.', 34, INK, 700, spacing=-.8)
+    left += text(PAD, 152, 'Open to conversations about frontend architecture,', 15, MUTED, 400)
+    left += text(PAD, 174, 'design systems and product problems worth solving.', 15, MUTED, 400)
+    rows = ''
+    for index, (label, value) in enumerate((('LinkedIn', 'biswas-soubhik'), ('GitHub', PROFILE['username']))):
+        y = 26 + index * 84
+        rows += anim(rect(0, y, COLUMN, 68, RAISED, LINE, 14) + text(22, y + 28, label, 12, MUTED, 500) + text(22, y + 52, value, 19, INK, 600)
+                     + group(COLUMN - 40, y + 34, f'<circle r="18" fill="none" stroke="{CITRON}" stroke-opacity=".6"/><g class="nudge" style="animation-delay:{index * .5:.1f}s">{arrow(0, 0)}</g>'), 'in', .2 + index * .12)
+    if mobile:
+        body = left + group(PAD, 196, rows)
+        height = 196 + 178 + PAD
+    else:
+        body = left + group(532, 14, rows)
+        height = 220
+    panel('connect-mobile.svg' if mobile else 'connect.svg', width, height, f'Connect with {PROFILE["name"]}',
+          f'Connect on LinkedIn at biswas-soubhik or on GitHub at {PROFILE["username"]}. Links follow this panel.', body)
+
+
+# ── README sections ──────────────────────────────────────────────────────────
+
+def picture(name, alt, link=None):
+    def source(filename):
+        return f'{RAW_ROOT}{filename}?v={hashlib.sha256((PANELS / filename).read_bytes()).hexdigest()[:12]}'
+    markup = (f'<picture><source media="(max-width: 600px)" srcset="{source(name + "-mobile.svg")}" />'
+              f'<img src="{source(name + ".svg")}" width="100%" alt="{escape(alt, quote=True)}" /></picture>')
+    return f'<a href="{escape(link if link else source(name + ".svg"), quote=True)}">{markup}</a>'
+
+
+def projects_section():
+    return '\n'.join(
+        picture(f'project-{project["art"]}', f'{project["name"]}, {project["kind"].lower()}. {project["summary"]} {project["detail"]}', project['url'])
+        for project in PROJECTS)
+
+
+def activity_summary():
     metrics = activity_metrics()
     days = DATA['days']
     latest, previous = days[-30:], days[-60:-30]
@@ -370,181 +1062,105 @@ def activity_table():
         f'| {latest[0]["date"]} to {latest[-1]["date"]} | **{metrics["last30"]:,}** | **{metrics["active30"]} / 30** |',
         f'| {previous[0]["date"]} to {previous[-1]["date"]} | {metrics["previous30"]:,} | {metrics["previous_active30"]} / 30 |',
         '',
-        f'**{DATA["contributions"]:,}** contributions across the displayed calendar · **{metrics["active"]}** active days · **{metrics["longest"]}**-day longest streak',
+        f'**{DATA["contributions"]:,}** contributions across the calendar, **{metrics["active"]}** active days, '
+        f'**{metrics["longest"]}**-day longest streak.',
     ])
 
 
-def daily_activity():
+def commit_cells(iso_dates):
+    """Commit, added and removed totals for dates, or dashes when any date is outside the snapshot."""
     commits = COMMIT_ACTIVITY
-    months = [list(days) for _, days in groupby(DATA['days'], lambda day: day['date'][:7])]
+    if not all(commits['from'] <= iso_date <= commits['to'] for iso_date in iso_dates):
+        return ['—'] * 3
+    rows = [commits['days'].get(iso_date, {}) for iso_date in iso_dates]
+    return [f'{sum(row.get(key, 0) for row in rows):,}' for key in ('commits', 'additions', 'deletions')]
+
+
+def monthly_table():
+    rows = ['| Month | Contributions | Active days | Commits | Lines added | Lines removed |', '| --- | ---: | ---: | ---: | ---: | ---: |']
+    grouped = [(key, list(days)) for key, days in groupby(DATA['days'], lambda day: day['date'][:7])]
+    for key, days in reversed(grouped):
+        month = date.fromisoformat(key + '-01')
+        cells = commit_cells([day['date'] for day in days])
+        rows.append(f'| {month:%B %Y} | {sum(day["count"] for day in days):,} | {sum(day["count"] > 0 for day in days)} | ' + ' | '.join(cells) + ' |')
+    return '\n'.join(rows)
+
+
+def daily_activity():
+    """One expandable table per month that has activity, listing only its active days."""
+    commits = COMMIT_ACTIVITY
     sections = [
-        'Bold numbers show GitHub contributions. Bars scale to the busiest day of each month.',
-        f'Commit and line counts cover the default branches of {commits["repositories"]} owned public repositories '
-        f'from {commits["from"]} through {commits["to"]} (UTC). A dash marks dates outside that snapshot.',
+        f'Days with no contributions are left out. Commit and line counts cover the default branches of {commits["repositories"]} '
+        f'owned public repositories from {commits["from"]} through {commits["to"]} (UTC). A dash marks dates outside that snapshot.',
     ]
-    for index, days in enumerate(reversed(months)):
-        first_day = date.fromisoformat(days[0]['date'])
-        counts = {date.fromisoformat(day['date']): day['count'] for day in days}
-        peak = max(1, max(counts.values()))
+    grouped = [(key, list(days)) for key, days in groupby(DATA['days'], lambda day: day['date'][:7])]
+    active = [(key, days) for key, days in reversed(grouped) if any(day['count'] for day in days)]
+    for index, (key, days) in enumerate(active):
+        month = date.fromisoformat(key + '-01')
         rows = [
             '<details open>' if index == 0 else '<details>',
-            f'<summary>{first_day:%B %Y} · {sum(counts.values()):,} contributions</summary>',
-            '',
-            '| Mon | Tue | Wed | Thu | Fri | Sat | Sun |',
-            '| --- | --- | --- | --- | --- | --- | --- |',
-        ]
-        for week in Calendar().monthdatescalendar(first_day.year, first_day.month):
-            cells = []
-            for day in week:
-                count = counts.get(day)
-                if count is None:
-                    cells.append('')
-                elif count:
-                    bar = '▮' * math.ceil(count * 5 / peak)
-                    cells.append(f'**{count:,}**<br>{bar}<br><sub>{day.day}</sub>')
-                else:
-                    cells.append(f'<br><br><sub>{day.day}</sub>')
-            rows.append('| ' + ' | '.join(cells) + ' |')
-        rows.extend([
+            f'<summary>{month:%B %Y}: {sum(day["count"] for day in days):,} contributions</summary>',
             '',
             '| Date | Contributions | Commits | Lines added | Lines removed |',
             '| --- | ---: | ---: | ---: | ---: |',
-        ])
+        ]
         for day in days:
-            iso_date = day['date']
-            details = commits['days'].get(iso_date, {})
-            values = [
-                f'{details.get(key, 0):,}' if commits['from'] <= iso_date <= commits['to'] else '—'
-                for key in ('commits', 'additions', 'deletions')
-            ]
-            rows.append('| ' + ' | '.join([short_date(iso_date), f'{day["count"]:,}', *values]) + ' |')
+            if day['count']:
+                rows.append('| ' + ' | '.join([short_date(day['date']), f'{day["count"]:,}', *commit_cells([day['date']])]) + ' |')
         rows.extend(['', '</details>'])
         sections.append('\n'.join(rows))
     return '\n\n'.join(sections)
 
 
-def repository_inventory():
-    path = ROOT / 'docs/repository-inventory.json'
-    if not path.is_file():
-        return ''
-    inventory = json.loads(path.read_text())
-    columns = [('total', 'Total'), ('public', 'Public'), ('private', 'Private')]
-    if inventory['internal']:
-        columns.append(('internal', 'Internal'))
-    return '\n'.join([
-        '### All owned repositories',
-        '',
-        '| ' + ' | '.join(label for _, label in columns) + ' |',
-        '| ' + ' | '.join('---:' for _ in columns) + ' |',
-        '| ' + ' | '.join(f'**{inventory[key]:,}**' for key, _ in columns) + ' |',
-        '',
-        f'As of {inventory["updated"]} IST. The total includes owned forks '
-        f'(**{inventory["forks"]:,}** in this snapshot). [Owner inventory snapshot](docs/repository-inventory.json)',
-    ])
-
-
 def repository_summary():
+    inventory = repository_inventory()
     repos = DATA['repos']
-    stars = sum(repo['stars'] for repo in repos)
-    forks = sum(repo['forks'] for repo in repos)
-    followers = DATA['account']['followers']
-    return '\n'.join([
-        '| Owned public repos excluding forks | Stars | Forks | Followers |',
-        '| ---: | ---: | ---: | ---: |',
-        f'| **{len(repos):,}** | **{stars:,}** | **{forks:,}** | **{followers:,}** |',
-    ])
+    line = f'**{len(repos):,}** public repositories in this snapshot, excluding forks.'
+    if inventory:
+        line = (f'**{inventory["total"]:,}** owned repositories as of {inventory["updated"]} IST: **{inventory["public"]:,}** public and '
+                f'**{inventory["private"] + inventory["internal"]:,}** private. The charts above cover the public ones.')
+    return line
 
 
-def projects_table():
-    rows = ['| Project | What it does |', '| --- | --- |']
-    rows.extend(f'| [{project["name"]}]({project["url"]}) | {project["summary"]} {project["detail"]} |'
-                for project in FEATURED)
-    return '\n'.join(rows)
+SECTIONS = (
+    ('hero', lambda: picture('hero', f'{PROFILE["name"]}, {PROFILE["role"]} at {PROFILE["company"]}. A design-tool view of the name with an inspect panel listing team, focus, location and stack, and a bar chart of GitHub contributions over the latest 13 weeks.')),
+    ('projects', projects_section),
+    ('pulse', lambda: picture('pulse', 'Engineering pulse. Four totals for the past 12 months, a bar chart of daily contributions over the latest 13 weeks with a 7-day average, and a comparison of the latest two 30-day periods.')
+     + '\n' + picture('rhythm', 'Weekly rhythm and commit volume. A bubble chart of contributions by weekday across 13 weeks, and weekly lines added and removed on public default branches.')),
+    ('months', lambda: picture('months', 'Bar chart of contributions in each month of the calendar.') + '\n\n' + monthly_table()),
+    ('activity-data', activity_summary),
+    ('daily-activity', daily_activity),
+    ('codebase', lambda: picture('codebase', 'Code across public repositories. A treemap of repositories sized by code bytes, language shares, and a dot for every owned repository.')),
+    ('repository-data', repository_summary),
+    ('craft', lambda: picture('craft', 'Flow from design tokens to themes to React components to products: annotation tools, onboarding flows, schema-driven forms and assessments.')),
+    ('stack', lambda: picture('stack', 'Frontend tools: React, Next.js, TypeScript, JavaScript, Redux Toolkit, SCSS, HTML, CSS, Tailwind CSS and Git. Icons travel around orbits.')),
+    ('connect', lambda: picture('connect', f'Connect with {PROFILE["name"]} on LinkedIn or GitHub.', PROFILE['linkedin'])),
+)
+PANEL_NAMES = ('hero', 'pulse', 'rhythm', 'months', 'codebase', 'craft', 'stack', 'connect') + tuple(f'project-{name}' for name in ART)
 
 
-def connect(mobile=False):
-    left=text(30,63,'Good interfaces begin',33)+text(30,107,'with good questions.',33)
-    left+=text(30,156,'Frontend architecture. Design systems.',17,MUTED)+text(30,184,'Product problems worth working through.',17,MUTED)
-    right=text(30,63,'Soubhik Biswas',27)
-    for i,(label,value) in enumerate([('LinkedIn','biswas-soubhik'),('GitHub',PROFILE['username'])]):
-        y=112+i*79
-        right+=text(30,y,label,13,CITRON)+text(30,y+28,value,22)
-        right+=f'<path d="M30 {y+44}h400" stroke="#4d446c"/>'+text(405,y+25,'↗',24,CITRON)
-    body=left+group(0,240,right) if mobile else left+group(535,0,right)
-    svg('connect-mobile.svg' if mobile else 'connect.svg',500 if mobile else 1000,535 if mobile else 296,'Connect with Soubhik Biswas','Connect on LinkedIn at biswas-soubhik or on GitHub at soubhik-biswas. Clickable links follow this panel.',body)
-
-
-def calendar(mobile=False):
-    days = DATA['days']
-    first, last = [date.fromisoformat(day['date']) for day in (days[0], days[-1])]
-    first_week = first - timedelta(days=first.weekday())
-    week_count = (last-first_week).days//7 + 1
-    weeks_per_band = (week_count+1)//2 if mobile else week_count
-    bands = [[] for _ in range(2 if mobile else 1)]
-    for day in days:
-        day_date = date.fromisoformat(day['date'])
-        week, weekday = divmod((day_date-first_week).days, 7)
-        band, column = divmod(week, weeks_per_band)
-        bands[band].append((day_date, column, weekday, day))
-
-    colors = ('#383554', '#58517e', '#8178bb', PERIWINKLE, CITRON)
-    body = text(32, 53, 'Contribution calendar', 32)
-    body += text(32, 84, f'{first:%b} {first.day}, {first.year} – {last:%b} {last.day}, {last.year}', 14, MUTED)
-    step = 15 if mobile else 16
-    for band_index, band in enumerate(bands):
-        if not band:
-            continue
-        top = 142 + band_index*182
-        month_labels = [(day_date, column) for day_date, column, _, _ in band if day_date.day == 1]
-        first_day, first_column, _, _ = band[0]
-        if not month_labels or month_labels[0][1]-first_column >= 3:
-            month_labels.insert(0, (first_day, first_column))
-        for day_date, column in month_labels:
-            body += text(64+column*step, top-14, f'{day_date:%b}', 12, MUTED)
-        for weekday, label in ((0, 'Mon'), (2, 'Wed'), (4, 'Fri'), (6, 'Sun')):
-            body += text(32, top+10+weekday*17, label, 11, MUTED)
-        for day_date, column, weekday, day in band:
-            body += f'<g><title>{day_date}: {day["count"]:,} contributions</title>'
-            body += rect(64+column*step, top+weekday*17, 12, 12, colors[day['level']], 'none', 2)
-            body += '</g>'
-
-    active = sum(day['count'] > 0 for day in days)
-    total = DATA['contributions']
-    summary_y = 484 if mobile else 303
-    body += text(32, summary_y, f'{total:,} contributions · {active:,} active days', 18)
-    legend_x, legend_y = (32, 513) if mobile else (763, 292)
-    body += text(legend_x, legend_y+11, 'Less', 12, MUTED)
-    for index, color in enumerate(colors):
-        body += rect(legend_x+36+index*18, legend_y, 13, 13, color, 'none', 2)
-    body += text(legend_x+130, legend_y+11, 'More', 12, MUTED)
-    svg('contribution-calendar-mobile.svg' if mobile else 'contribution-calendar.svg',
-        500 if mobile else 1000, 552 if mobile else 339,
-        'Soubhik Biswas public GitHub contribution calendar',
-        f'Daily contributions from {first} to {last}. Colors encode five activity levels. {total:,} contributions on {active:,} active days.', body)
-
-
-if __name__ == '__main__':
+def build_panels():
     for mobile in (False, True):
-        for renderer in (hero, about, stack, activity, codebase, connect, calendar):
+        for renderer in (hero, pulse, rhythm, months, codebase, craft, stack, connect):
             renderer(mobile)
+        for project in PROJECTS:
+            project_card(project, mobile)
+
+
+def build_readme():
     readme = ROOT / 'README.md'
     content = readme.read_text()
-    content = re.sub(
-        rf'{re.escape(RAW_ROOT)}([\w-]+\.svg)\?v=[\w-]+',
-        lambda match: f'{RAW_ROOT}{match[1]}?v={hashlib.sha256((ROOT / match[1]).read_bytes()).hexdigest()[:12]}',
-        content,
-    )
-    sections = (
-        ('activity-data', activity_table),
-        ('daily-activity', daily_activity),
-        ('repository-inventory', repository_inventory),
-        ('repository-data', repository_summary),
-        ('featured-projects', projects_table),
-    )
-    for section, build in sections:
-        content = re.sub(
+    for section, build in SECTIONS:
+        content, replaced = re.subn(
             rf'(?<=<!-- {section}:start -->).*?(?=<!-- {section}:end -->)',
             lambda _: '\n\n' + build() + '\n\n', content, flags=re.DOTALL,
         )
+        if replaced != 1:
+            raise RuntimeError(f'README must contain exactly one {section} section')
     readme.write_text(content)
-    print('Built 14 self-contained profile graphics')
+
+
+if __name__ == '__main__':
+    build_panels()
+    build_readme()
+    print(f'Built {len(PANEL_NAMES) * 2} self-contained profile panels')

@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Passlore",
+    "slug": "passlore",
+    "art": "passlore",
+    "kind": "Web app",
+    "url": "https://passlore.com/",
+    "link": "passlore.com",
+    "summary": "Generates passwords, passphrases and PINs right in the browser.",
+    "detail": "Pick where the password is going and it cuts one to suit. Nothing is uploaded.",
+    "stack": ["Next.js", "TypeScript", "Tailwind CSS"]
+  },
+  {
+    "name": "AwakeTab",
+    "slug": "awaketab",
+    "art": "awaketab",
+    "kind": "Web app and extension",
+    "url": "https://awaketab.com/",
+    "link": "awaketab.com",
+    "summary": "Keeps your screen awake for a timed session, and tells you when it is working.",
+    "detail": "Built on the Screen Wake Lock API, with a ring timer and an installable app.",
+    "stack": ["Next.js", "TypeScript", "Wake Lock API"]
+  },
+  {
+    "name": "Shareroom",
+    "slug": "share",
+    "art": "shareroom",
+    "kind": "Web app",
+    "url": "https://shareroom.app/",
+    "link": "shareroom.app",
+    "summary": "A shared room for working together in the browser.",
+    "detail": "Open a room to share and preview work from one link.",
+    "stack": []
+  },
+  {
+    "name": "OiBuddy",
+    "slug": "oibuddy-vscode",
+    "art": "oibuddy",
+    "kind": "VS Code extension",
+    "url": "https://marketplace.visualstudio.com/items?itemName=SoubhikBiswas-gitHub.oibuddy",
+    "link": "VS Code Marketplace",
+    "summary": "A small companion in your editor with gentle reminders to drink water and rest.",
+    "detail": "Animated buddies, guided breaks, focus sounds and a daily progress view.",
+    "stack": ["JavaScript", "VS Code API"]
+  },
+  {
+    "name": "Prismwink",
+    "slug": "prismwink",
+    "art": "prismwink",
+    "kind": "Chrome extension",
+    "url": "https://github.com/soubhik-biswas/prismwink",
+    "link": "Source on GitHub",
+    "summary": "Snap your fingers in Google Meet to vanish into dust and mute your mic.",
+    "detail": "Hand tracking and the camera effect run on your own computer.",
+    "stack": ["TypeScript", "React", "MediaPipe"]
+  },
+  {
+    "name": "BucketPeek",
+    "slug": "bucketpeek",
+    "art": "bucketpeek",
+    "kind": "Web app",
+    "url": "https://github.com/soubhik-biswas/bucketpeek",
+    "link": "Source on GitHub",
+    "summary": "Browse an S3 bucket in the browser, preview any file and spot videos that will not play.",
+    "detail": "Search, timed share links, and on-the-fly video conversion with FFmpeg and HLS.",
+    "stack": ["Next.js", "AWS SDK", "FFmpeg"]
+  }
+]
