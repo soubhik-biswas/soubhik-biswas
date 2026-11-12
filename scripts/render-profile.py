@@ -371,13 +371,33 @@ def activity_table():
     ])
 
 
+def repository_inventory():
+    path = ROOT / 'docs/repository-inventory.json'
+    if not path.is_file():
+        return ''
+    inventory = json.loads(path.read_text())
+    columns = [('total', 'Total'), ('public', 'Public'), ('private', 'Private')]
+    if inventory['internal']:
+        columns.append(('internal', 'Internal'))
+    return '\n'.join([
+        '### All owned repositories',
+        '',
+        '| ' + ' | '.join(label for _, label in columns) + ' |',
+        '| ' + ' | '.join('---:' for _ in columns) + ' |',
+        '| ' + ' | '.join(f'**{inventory[key]:,}**' for key, _ in columns) + ' |',
+        '',
+        f'As of {inventory["updated"]} IST. The total includes owned forks '
+        f'(**{inventory["forks"]:,}** in this snapshot). [Owner inventory snapshot](docs/repository-inventory.json)',
+    ])
+
+
 def repository_summary():
     repos = DATA['repos']
     stars = sum(repo['stars'] for repo in repos)
     forks = sum(repo['forks'] for repo in repos)
     followers = DATA['account']['followers']
     return '\n'.join([
-        '| Owned public repos | Stars | Forks | Followers |',
+        '| Owned public repos excluding forks | Stars | Forks | Followers |',
         '| ---: | ---: | ---: | ---: |',
         f'| **{len(repos):,}** | **{stars:,}** | **{forks:,}** | **{followers:,}** |',
     ])
@@ -464,6 +484,7 @@ if __name__ == '__main__':
     )
     sections = (
         ('activity-data', activity_table),
+        ('repository-inventory', repository_inventory),
         ('repository-data', repository_summary),
         ('featured-projects', projects_table),
     )

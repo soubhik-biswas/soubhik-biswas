@@ -1,4 +1,5 @@
 const number = new Intl.NumberFormat('en');
+const compactNumber = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
 const share = new Intl.NumberFormat('en', { style: 'percent', maximumFractionDigits: 1 });
 const fullDate = new Intl.DateTimeFormat('en', { dateStyle: 'full', timeZone: 'UTC' });
 const monthLabel = new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -25,7 +26,18 @@ export function monthLayout(month) {
   return { offset, length: next.getUTCDate() };
 }
 
-export function mountActivityCalendar(days) {
+export function commitMetrics(snapshot, date) {
+  if (!snapshot?.days || typeof snapshot.from !== 'string' || typeof snapshot.to !== 'string' ||
+    date < snapshot.from || date > snapshot.to) return null;
+  const row = snapshot.days[date];
+  if (row === undefined) return { commits: 0, additions: 0, deletions: 0 };
+  if (!row || ![row.commits, row.additions, row.deletions].every((value) => Number.isSafeInteger(value) && value >= 0)) {
+    return null;
+  }
+  return row;
+}
+
+export function mountActivityCalendar(days, commitRequest) {
   const grid = document.getElementById('calendar-grid');
   const previous = document.getElementById('calendar-prev');
   const next = document.getElementById('calendar-next');
@@ -33,6 +45,9 @@ export function mountActivityCalendar(days) {
   const summary = document.getElementById('calendar-month-total');
   const output = document.getElementById('calendar-point');
   const peak = document.getElementById('calendar-peak');
+  const commitScope = document.getElementById('calendar-commit-scope');
+  const commitValues = ['commits', 'additions', 'deletions'].map((metric) =>
+    [metric, document.getElementById('calendar-' + metric)]);
   const months = new Map();
   const dates = new Map();
   days.forEach((day, index) => {
@@ -57,6 +72,7 @@ export function mountActivityCalendar(days) {
 
   let selected = days.length - 1;
   let displayedMonth = '';
+  let commitSnapshot;
 
   function describe(day) {
     return fullDate.format(utcDate(day.date)) + ' · ' + number.format(day.count) +
@@ -67,6 +83,7 @@ export function mountActivityCalendar(days) {
     const records = months.get(month).map((index) => days[index]);
     const monthCount = records.reduce((sum, day) => sum + day.count, 0);
     const active = records.filter((day) => day.count > 0).length;
+    const busiestDay = Math.max(1, ...records.map(({ count }) => count));
     const { offset, length } = monthLayout(month);
     const elements = [];
     for (let position = 0; position < offset; position++) {
@@ -80,7 +97,6 @@ export function mountActivityCalendar(days) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'calendar-day';
-      button.textContent = date;
       button.tabIndex = -1;
       if (index === undefined) {
         button.disabled = true;
@@ -91,13 +107,42 @@ export function mountActivityCalendar(days) {
         button.dataset.level = day.level ?? Number(day.count > 0);
         button.setAttribute('aria-label', describe(day));
         button.setAttribute('aria-pressed', 'false');
-        if (day.count) {
-          const count = document.createElement('span');
-          count.className = 'calendar-count';
-          count.textContent = number.format(day.count);
-          button.append(count);
-        }
+        const contribution = document.createElement('span');
+        contribution.className = 'calendar-contributions';
+        contribution.setAttribute('aria-hidden', 'true');
+        const count = document.createElement('span');
+        count.className = 'calendar-count';
+        const countFull = document.createElement('span');
+        countFull.className = 'calendar-count-full';
+        countFull.textContent = number.format(day.count);
+        const countShort = document.createElement('span');
+        countShort.className = 'calendar-count-short';
+        countShort.textContent = compactNumber.format(day.count);
+        count.append(countFull, countShort);
+        const label = document.createElement('span');
+        label.className = 'calendar-label';
+        const labelFull = document.createElement('span');
+        labelFull.className = 'calendar-label-full';
+        labelFull.textContent = day.count === 1 ? 'Contribution' : 'Contributions';
+        const labelShort = document.createElement('span');
+        labelShort.className = 'calendar-label-short';
+        labelShort.textContent = 'Contrib.';
+        label.append(labelFull, labelShort);
+        contribution.append(count, label);
+        const meter = document.createElement('span');
+        meter.className = 'calendar-meter';
+        meter.setAttribute('aria-hidden', 'true');
+        const fill = document.createElement('span');
+        fill.style.width = (day.count / busiestDay) * 100 + '%';
+        fill.toggleAttribute('data-positive', day.count > 0);
+        meter.append(fill);
+        button.append(contribution, meter);
       }
+      const dateNumber = document.createElement('span');
+      dateNumber.className = 'calendar-date';
+      dateNumber.textContent = date;
+      dateNumber.setAttribute('aria-hidden', 'true');
+      button.append(dateNumber);
       elements.push(button);
     }
     grid.replaceChildren(...elements);
@@ -107,6 +152,15 @@ export function mountActivityCalendar(days) {
     previous.disabled = month === monthKeys[0];
     next.disabled = month === monthKeys.at(-1);
     displayedMonth = month;
+  }
+
+  function updateCommits() {
+    const row = commitMetrics(commitSnapshot, days[selected].date);
+    for (const [metric, node] of commitValues) node.textContent = row ? number.format(row[metric]) : '—';
+    const scope = 'Commits attributed to Soubhik Biswas on default branches of his public repositories. Dates use UTC.';
+    commitScope.textContent = scope + (commitSnapshot === undefined
+      ? ' Loading commit data…'
+      : row ? '' : ' Commit data unavailable for this date.');
   }
 
   function select(index, focus = false) {
@@ -123,6 +177,7 @@ export function mountActivityCalendar(days) {
     button.setAttribute('aria-pressed', 'true');
     button.tabIndex = 0;
     output.textContent = describe(day);
+    updateCommits();
     if (focus) button.focus({ preventScroll: true });
   }
 
@@ -153,4 +208,8 @@ export function mountActivityCalendar(days) {
     event.preventDefault();
   });
   select(selected);
+  Promise.resolve(commitRequest).then((snapshot) => {
+    commitSnapshot = snapshot ?? null;
+    updateCommits();
+  });
 }

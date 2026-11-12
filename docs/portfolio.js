@@ -1,5 +1,5 @@
-import { mountActivityCalendar } from './activity-calendar.js';
-import { renderRepositoryStats } from './repository-stats.js';
+import { mountActivityCalendar } from './activity-calendar.js?v=activity-detail';
+import { renderRepositoryStats } from './repository-stats.js?v=activity-detail';
 
 const byId = (id) => document.getElementById(id);
 const number = new Intl.NumberFormat('en');
@@ -81,6 +81,18 @@ async function getSnapshot() {
   return { data: checkSnapshot(await getJSON('./snapshot.json')), fallback: false };
 }
 
+async function getCommitActivity() {
+  if (location.hostname === 'soubhik-biswas.github.io') {
+    try {
+      const latest = await getJSON(new URL('commit-activity.json', liveSnapshot));
+      if (latest?.days && latest.from && latest.to) return latest;
+    } catch {
+      // The deployed snapshot remains available if the live request fails.
+    }
+  }
+  return getJSON('./commit-activity.json').catch(() => null);
+}
+
 function showProjects(projects) {
   byId('project-list').replaceChildren(...projects.map((project) => {
     const article = element('article', undefined, 'project');
@@ -95,8 +107,12 @@ function showProjects(projects) {
 
 function mountActivity(data) {
   const compare = byId('compare');
-  const scrub = byId('scrub');
   const plot = byId('plot');
+  const previousButton = byId('point-prev');
+  const nextButton = byId('point-next');
+  const pointDate = byId('point-date');
+  const pointValue = byId('point-value');
+  const pointComparison = byId('point-comparison');
   let length = 90;
   let buckets = [];
   let columns = [];
@@ -104,19 +120,22 @@ function mountActivity(data) {
   let wantsComparison = compare.checked;
 
   function inspect(index) {
+    index = Math.min(Math.max(index, 0), buckets.length - 1);
     if (selection === index) return;
     const bucket = buckets[index];
     if (columns[selection]) columns[selection].dataset.selected = 'false';
     columns[index].dataset.selected = 'true';
     selection = index;
-    scrub.value = index;
-    const current = dateRange(bucket.start, bucket.end) + ' · ' +
-      number.format(bucket.count) + ' contributions · ' + bucket.active + ' active days';
-    const previous = bucket.previous
-      ? ' · ' + number.format(bucket.previous.count) + ' in ' + dateRange(bucket.previous.start, bucket.previous.end)
+    previousButton.setAttribute('aria-disabled', index === 0);
+    nextButton.setAttribute('aria-disabled', index === buckets.length - 1);
+    pointDate.textContent = dateRange(bucket.start, bucket.end);
+    pointValue.textContent = number.format(bucket.count) + (bucket.count === 1 ? ' contribution' : ' contributions') +
+      ' · ' + bucket.active + (bucket.active === 1 ? ' active day' : ' active days');
+    pointComparison.hidden = !bucket.previous;
+    pointComparison.textContent = bucket.previous
+      ? 'Previous period · ' + dateRange(bucket.previous.start, bucket.previous.end) + ' · ' +
+        number.format(bucket.previous.count) + (bucket.previous.count === 1 ? ' contribution' : ' contributions')
       : '';
-    byId('point').textContent = current + previous;
-    scrub.setAttribute('aria-valuetext', current + previous);
   }
 
   function render() {
@@ -187,13 +206,22 @@ function mountActivity(data) {
       ? ' Previous period: ' + dateRange(previous[0].date, previous.at(-1).date) + '.'
       : prior ? '' : ' The snapshot has no earlier window of the same length.';
     byId('period-note').textContent = currentRange + ' · Counts grouped by ' + grouping + '.' + previousRange;
-    scrub.max = buckets.length - 1;
     const target = selection < 0 ? buckets.length - 1 : Math.min(selection, buckets.length - 1);
     selection = -1;
     inspect(target);
   }
 
-  scrub.addEventListener('input', () => inspect(Number(scrub.value)));
+  previousButton.addEventListener('click', () => inspect(selection - 1));
+  nextButton.addEventListener('click', () => inspect(selection + 1));
+  byId('point-controls').addEventListener('keydown', (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'ArrowLeft') inspect(selection - 1);
+    else if (event.key === 'ArrowRight') inspect(selection + 1);
+    else if (event.key === 'Home') inspect(0);
+    else if (event.key === 'End') inspect(buckets.length - 1);
+    else return;
+    event.preventDefault();
+  });
   compare.addEventListener('change', () => {
     wantsComparison = compare.checked;
     render();
@@ -205,25 +233,6 @@ function mountActivity(data) {
       render();
     });
   }
-  byId('download').addEventListener('click', () => {
-    const header = ['Start date', 'End date', 'Contributions', 'Active days'];
-    if (buckets[0].previous) header.push('Previous start date', 'Previous end date', 'Previous contributions');
-    const lines = buckets.map(({ start, end, count, active, previous }) => {
-      const row = [start, end, count, active];
-      if (previous) row.push(previous.start, previous.end, previous.count);
-      return row;
-    });
-    const file = new Blob([[header, ...lines].map((row) => row.join(',')).join('\r\n')], { type: 'text/csv' });
-    const url = URL.createObjectURL(file);
-    const link = element('a');
-    link.href = url;
-    link.download = 'github-contributions-' + buckets.at(-1).end + '.csv';
-    document.body.append(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  });
-
   render();
 }
 
@@ -304,13 +313,16 @@ const projectsRequest = getJSON('./projects.json').then((projects) => {
 try {
   const [{ data, fallback }, projects] = await Promise.all([getSnapshot(), projectsRequest]);
   mountActivity(data);
-  mountActivityCalendar(data.days);
+  mountActivityCalendar(data.days, getCommitActivity());
   mountLanguages(data, projects);
   renderRepositoryStats(data);
   const through = formatDate(data.days.at(-1).date);
   byId('snapshot').textContent = (fallback ? 'Saved snapshot through ' : 'GitHub data through ') + through;
   byId('data-status').hidden = true;
   document.querySelectorAll('[data-needs-data]').forEach((node) => { node.hidden = false; });
+  if (location.hash === '#calendar') {
+    requestAnimationFrame(() => byId('calendar').scrollIntoView({ block: 'start', behavior: 'instant' }));
+  }
 } catch {
   byId('snapshot').textContent = 'Snapshot unavailable';
   const status = byId('data-status');

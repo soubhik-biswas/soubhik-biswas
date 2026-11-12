@@ -71,7 +71,7 @@ h2 { font-size: clamp(1.55rem, 3vw, 2.25rem); }
 .chart-key i { width: .68rem; height: .68rem; border-radius: .16rem; }
 .key-current { background: var(--citron); }
 .key-previous { background: var(--periwinkle); }
-.compare input, #scrub { accent-color: var(--citron); }
+.compare input { accent-color: var(--citron); }
 
 .chart { display: grid; grid-template-columns: 3.2rem minmax(0,1fr); grid-template-rows: clamp(10rem, 27vw, 17.5rem) auto; gap: .45rem; margin-top: 1rem; }
 .scale { display: flex; flex-direction: column; justify-content: space-between; align-items: end; color: var(--muted); font-size: .73rem; font-variant-numeric: tabular-nums; }
@@ -82,15 +82,34 @@ h2 { font-size: clamp(1.55rem, 3vw, 2.25rem); }
 .bucket .current { background: var(--citron); }
 .bucket .previous { background: var(--periwinkle); }
 .time-labels { grid-column: 2; display: flex; justify-content: space-between; color: var(--muted); font-size: .75rem; }
-.inspection { display: grid; grid-template-columns: minmax(11rem, 1fr) minmax(0, 1fr); align-items: center; gap: .65rem 1.5rem; margin-top: 1rem; padding: .8rem .95rem; border-radius: .55rem; background: var(--inset); }
-.inspection label, .inspection output { display: block; font-size: .85rem; }
-.inspection input { width: 100%; margin: .4rem 0 0; }
-.inspection output { color: var(--citron); line-height: 1.45; font-variant-numeric: tabular-nums; }
+.inspection { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: .75rem; margin-top: 1rem; }
+.inspection-nav { display: inline-flex; justify-content: space-between; align-items: center; gap: .6rem; width: fit-content; font-size: .85rem; }
+.inspection-nav button {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--inset);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: .4rem;
+}
+.inspection-nav button[aria-disabled="true"] { cursor: default; opacity: .4; }
+.inspection output {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  min-height: 5.5rem;
+  padding: .65rem .85rem;
+  border-radius: .55rem;
+  background: var(--inset);
+  color: var(--muted);
+  font-size: .85rem;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+.inspection output strong { color: var(--citron); }
 .source-note { margin: .8rem 0 0; }
-.data-actions { display: flex; justify-content: space-between; align-items: start; gap: .7rem; margin-top: 1.1rem; }
-.data-actions details { flex: 1; min-width: 0; }
+.data-actions { min-width: 0; margin-top: 1.1rem; }
 summary { cursor: pointer; }
-.link-button { padding: .15rem 0; border: 0; background: none; color: var(--citron); text-decoration: underline; text-underline-offset: .23em; white-space: nowrap; }
 .table-wrap { overflow: auto; }
 table { width: 100%; margin-top: .7rem; border-collapse: collapse; font-size: .82rem; }
 td, th { padding: .55rem .35rem; border-bottom: 1px solid var(--rule); text-align: right; }
@@ -133,16 +152,18 @@ td:first-child, th:first-child { text-align: left; }
   .masthead nav { gap: .3rem .7rem; }
   .masthead nav a { font-size: .8rem; }
   .metrics dt, .metrics .metric-note { font-size: .71rem; }
-  .data-actions { flex-wrap: wrap; }
 }
 @media (prefers-reduced-motion: reduce) { :root { scroll-behavior: auto; } }
 
 .repository-totals { padding: 1rem 0 1.35rem; }
 .repository-totals h2 { font-size: clamp(1.15rem, 2vw, 1.4rem); }
 .repository-totals dl { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .9rem 1rem; margin: .85rem 0 0; }
+.repository-totals .inventory-metrics { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
 .repository-totals dl div { border-top: 1px solid var(--rule); padding-top: .65rem; }
 .repository-totals dt { color: var(--muted); font-size: .82rem; }
 .repository-totals dd { margin: .15rem 0 0; font-size: clamp(1.5rem,3vw,2rem); font-variant-numeric: tabular-nums; }
+.repository-totals .inventory-metrics dd { font-size: clamp(2.2rem, 5vw, 3.3rem); color: var(--citron); }
+.repository-public-title { margin-top: 1.35rem; font-size: 1.02rem; letter-spacing: 0; }
 @media (max-width: 430px) { .repository-totals dl { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 
 .section-head .calendar-peak { color: var(--citron); max-width: 38ch; }
@@ -170,19 +191,20 @@ td:first-child, th:first-child { text-align: left; }
 .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: .35rem; }
 .calendar-weekdays { text-align: center; color: var(--muted); font-size: .75rem; margin-bottom: .4rem; }
 .calendar-day {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: .13rem;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: start;
+  align-items: start;
+  gap: .2rem;
   min-width: 0;
-  min-height: clamp(2.55rem, 5vw, 3.75rem);
-  padding: .17rem;
+  min-height: clamp(4rem, 7vw, 5rem);
+  padding: .4rem .48rem;
   border: 1px solid var(--rule);
   border-radius: .35rem;
   background: var(--inset);
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+  text-align: left;
 }
 .calendar-day:hover:not(:disabled) { border-color: var(--periwinkle); }
 .calendar-day[aria-pressed="true"] { border-color: var(--citron); outline: 1px solid var(--citron); outline-offset: -3px; }
@@ -191,19 +213,37 @@ td:first-child, th:first-child { text-align: left; }
 .calendar-day[data-level="3"] { background: #494170; }
 .calendar-day[data-level="4"] { background: #403f50; border-color: #82964e; }
 .calendar-day:disabled { opacity: .42; cursor: default; }
-.calendar-count { color: var(--citron); font-size: .67rem; line-height: 1; }
+.calendar-contributions { color: var(--citron); line-height: 1; min-width: 0; }
+.calendar-count { display: block; font-size: .85rem; }
+.calendar-label { display: block; margin-top: .12rem; font-size: .62rem; }
+.calendar-label-short, .calendar-count-short { display: none; }
+.calendar-meter { display: block; align-self: end; width: 100%; height: 3px; border-radius: 2px; background: var(--rule); }
+.calendar-meter span { display: block; height: 100%; border-radius: inherit; background: var(--citron); }
+.calendar-meter span[data-positive] { min-width: 1px; }
+.calendar-date { grid-row: 3; align-self: end; font-size: .75rem; }
 .calendar-detail {
-  display: block;
   margin-top: .7rem;
   padding: .7rem .85rem;
   border-radius: .5rem;
   background: var(--inset);
-  color: var(--citron);
   font-size: .88rem;
   font-variant-numeric: tabular-nums;
 }
+.calendar-detail output { display: block; color: var(--citron); }
+.calendar-commit-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem 1rem; margin: .75rem 0 .55rem; }
+.calendar-commit-stats div { border-top: 1px solid var(--rule); padding-top: .5rem; min-width: 0; }
+.calendar-commit-stats dt { color: var(--muted); font-size: .74rem; }
+.calendar-commit-stats dd { margin: .12rem 0 0; font-size: clamp(.88rem, 3vw, 1.25rem); overflow-wrap: anywhere; }
+.calendar-detail p { margin: 0; font-size: .72rem; }
+@media (max-width: 720px) {
+  .calendar-label-full, .calendar-count-full { display: none; }
+  .calendar-label-short, .calendar-count-short { display: inline; }
+}
 @media (max-width: 430px) {
   .calendar-weekdays, .calendar-grid { gap: .2rem; }
-  .calendar-weekdays, .calendar-count { font-size: .63rem; }
-  .calendar-day { font-size: .82rem; }
+  .calendar-weekdays, .calendar-date { font-size: .65rem; }
+  .calendar-day { padding: .3rem .19rem; }
+  .calendar-count { font-size: .73rem; }
+  .calendar-label { font-size: .49rem; }
+  .calendar-commit-stats { column-gap: .45rem; }
 }

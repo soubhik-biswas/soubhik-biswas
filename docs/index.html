@@ -6,8 +6,8 @@
   <meta name="description" content="Explore Soubhik Biswas’s public GitHub activity and selected products.">
   <meta name="theme-color" content="#17162e">
   <title>Soubhik Biswas · Engineering portfolio</title>
-  <link rel="stylesheet" href="portfolio.css?v=calendar">
-  <script type="module" src="portfolio.js?v=calendar"></script>
+  <link rel="stylesheet" href="portfolio.css?v=activity-detail">
+  <script type="module" src="portfolio.js?v=activity-detail"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -63,11 +63,16 @@
           <div class="time-labels" id="time-labels" aria-hidden="true"></div>
         </div>
         <div class="inspection">
-          <div>
-            <label for="scrub">Inspect <span id="interval">week</span></label>
-            <input id="scrub" type="range" min="0" max="0" value="0">
+          <div class="inspection-nav" id="point-controls" role="group" aria-label="Inspect chart points">
+            <button type="button" id="point-prev" aria-label="Previous point">←</button>
+            <span>Inspect <span id="interval">week</span></span>
+            <button type="button" id="point-next" aria-label="Next point">→</button>
           </div>
-          <output id="point" for="scrub"></output>
+          <output id="point" for="point-prev point-next">
+            <strong id="point-date"></strong>
+            <span id="point-value"></span>
+            <span id="point-comparison" hidden></span>
+          </output>
         </div>
         <p class="muted source-note" id="period-note"></p>
         <div class="data-actions">
@@ -80,16 +85,25 @@
               </table>
             </div>
           </details>
-          <button class="link-button" type="button" id="download">Download CSV ↓</button>
         </div>
       </div>
       <noscript><p><a href="https://github.com/soubhik-biswas#contribution-trends">Open the contribution summary on GitHub</a>.</p></noscript>
     </section>
 
     <section class="repository-totals" aria-labelledby="repository-title" data-needs-data hidden>
-      <h2 id="repository-title">Public repository totals</h2>
-      <dl>
-        <div><dt>Owned repositories</dt><dd id="repository-count">—</dd></div>
+      <h2 id="repository-title">Repositories</h2>
+      <div id="repository-inventory" hidden>
+        <dl class="inventory-metrics">
+          <div><dt>Total owned</dt><dd id="inventory-total">—</dd></div>
+          <div><dt>Public</dt><dd id="inventory-public">—</dd></div>
+          <div><dt>Private</dt><dd id="inventory-private">—</dd></div>
+          <div id="inventory-internal-metric" hidden><dt>Internal</dt><dd id="inventory-internal">—</dd></div>
+        </dl>
+        <p id="inventory-date" class="muted source-note"></p>
+      </div>
+      <h3 class="repository-public-title">Public repository activity</h3>
+      <dl class="public-metrics">
+        <div><dt>Owned non-fork repos</dt><dd id="repository-count">—</dd></div>
         <div><dt>Stars</dt><dd id="star-count">—</dd></div>
         <div><dt>Forks</dt><dd id="fork-count">—</dd></div>
         <div><dt>Followers</dt><dd id="follower-count">—</dd></div>
@@ -116,7 +130,15 @@
         <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
       </div>
       <div class="calendar-grid" id="calendar-grid" role="group" aria-labelledby="calendar-month"></div>
-      <output class="calendar-detail" id="calendar-point"></output>
+      <div class="calendar-detail">
+        <output id="calendar-point"></output>
+        <dl class="calendar-commit-stats" aria-label="Selected date commit activity" aria-live="polite">
+          <div><dt>Commits</dt><dd id="calendar-commits">—</dd></div>
+          <div><dt>Lines added</dt><dd id="calendar-additions">—</dd></div>
+          <div><dt>Lines removed</dt><dd id="calendar-deletions">—</dd></div>
+        </dl>
+        <p class="muted" id="calendar-commit-scope"></p>
+      </div>
     </section>
 
     <section class="report code" id="code" aria-labelledby="code-title">
@@ -145,6 +167,7 @@
     <footer class="notes">
       <h2>Data sources</h2>
       <p>Contribution counts come from the calendar visible on GitHub. They can include commits, issues, pull requests, and other activity. The latest day can still be in progress. Language breakdowns are measured in detected code bytes.</p>
+      <p>Calendar commit counts cover primary-authored commits on owned public default branches and use UTC author dates. Lines added and removed come from GitHub’s commit diffs. The repository inventory is a dated count from the owner account.</p>
       <div class="source-links">
         <a href="https://github.com/users/soubhik-biswas/contributions">Contribution calendar ↗</a>
         <a href="https://github.com/soubhik-biswas/soubhik-biswas/blob/main/assets/public-data.json">Public snapshot ↗</a>

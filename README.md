@@ -32,9 +32,23 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 
 ## Code across projects
 
+<!-- repository-inventory:start -->
+
+### All owned repositories
+
+| Total | Public | Private |
+| ---: | ---: | ---: |
+| **64** | **8** | **56** |
+
+As of 2026-11-13 IST. The total includes owned forks (**0** in this snapshot). [Owner inventory snapshot](docs/repository-inventory.json)
+
+<!-- repository-inventory:end -->
+
+### Public repository analytics
+
 <!-- repository-data:start -->
 
-| Owned public repos | Stars | Forks | Followers |
+| Owned public repos excluding forks | Stars | Forks | Followers |
 | ---: | ---: | ---: | ---: |
 | **8** | **1** | **0** | **3** |
 
@@ -48,8 +62,8 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 [Browse the public data snapshot](assets/public-data.json) · [Refresh workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life-mobile.svg?v=98e4163a4f58" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life.svg?v=f2a2d9bcc0ed" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life-mobile.svg?v=42f4ffee2c1c" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life.svg?v=a87ecec5797b" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
 </picture>
 
 My work connects reusable React components, configurable themes and interactive documentation with the details of each product. That includes shared validation, coding interfaces, authentication, browser extensions and resumable uploads.
@@ -99,6 +113,8 @@ The [GitHub contribution calendar](https://github.com/users/soubhik-biswas/contr
 Repository, star, and fork counts cover owned public repositories, excluding forks. Followers come from the public account record. Language shares use [GitHub’s repository language API](https://docs.github.com/en/rest/repos/repos#list-repository-languages). The portfolio aggregate includes owned public repositories and excludes forks. Each featured-project share uses that repository’s own byte total. GitHub’s detected code bytes describe repository composition. Contributions can include several [types of activity](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference).
 
 The profile charts use self-contained SVG with narrow-screen layouts and reduced-motion support. The interactive dashboard uses the same public data.
+
+Calendar commit details use the [public commit snapshot](assets/commit-activity.json). It counts primary-authored commits on owned public default branches by UTC author date. Lines added and removed are the totals GitHub reports for those commit diffs.
 
 Update profile details in `profile.json`, keep the prose in sync, then run:
 

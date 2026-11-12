@@ -59,6 +59,23 @@ assert readme.count('<picture>') == len(panels)
 assert readme.count('<!-- activity-data:start -->') == 1
 assert readme.count('<!-- activity-data:end -->') == 1
 assert f'{sum(day["count"] for day in data["days"][-30:]):,}' in readme
+assert readme.count('<!-- repository-inventory:start -->') == 1
+assert readme.count('<!-- repository-inventory:end -->') == 1
+inventory_section = readme.split('<!-- repository-inventory:start -->')[1].split('<!-- repository-inventory:end -->')[0]
+inventory_path = ROOT / 'docs/repository-inventory.json'
+if inventory_path.is_file():
+    inventory = json.loads(inventory_path.read_text())
+    assert set(inventory) == {'updated', 'total', 'public', 'private', 'internal', 'forks'}
+    assert date.fromisoformat(inventory['updated']).isoformat() == inventory['updated']
+    keys = ('total', 'public', 'private', 'internal', 'forks')
+    assert all(type(inventory[key]) is int and inventory[key] >= 0 for key in keys)
+    assert inventory['total'] == sum(inventory[key] for key in ('public', 'private', 'internal'))
+    assert inventory['forks'] <= inventory['total']
+    displayed = keys if inventory['internal'] else ('total', 'public', 'private', 'forks')
+    assert re.findall(r'\*\*([\d,]+)\*\*', inventory_section) == [f'{inventory[key]:,}' for key in displayed]
+    assert inventory['updated'] in inventory_section
+else:
+    assert not inventory_section.strip()
 repository_data = readme.split('<!-- repository-data:start -->')[1].split('<!-- repository-data:end -->')[0]
 assert re.findall(r'\*\*([\d,]+)\*\*', repository_data) == [
     f'{len(data["repos"]):,}',
