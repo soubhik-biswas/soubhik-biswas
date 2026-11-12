@@ -185,12 +185,6 @@ Days with no contributions are left out. Commit and line counts cover the defaul
 
 <!-- codebase:end -->
 
-<!-- repository-data:start -->
-
-**65** owned repositories as of 2026-11-13 IST: **9** public and **56** private. The charts above cover 8 public repositories.
-
-<!-- repository-data:end -->
-
 ## How I build
 
 <!-- craft:start -->

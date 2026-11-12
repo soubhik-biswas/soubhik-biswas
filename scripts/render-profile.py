@@ -1131,15 +1131,6 @@ def daily_activity():
     return '\n\n'.join(sections)
 
 
-def repository_summary():
-    inventory = repository_inventory()
-    line = f'**{len(DATA["repos"]):,}** public repositories in this snapshot, excluding forks.'
-    if inventory:
-        line = (f'**{inventory["total"]:,}** owned repositories as of {inventory["updated"]} IST: **{inventory["public"]:,}** public and '
-                f'**{inventory["private"] + inventory["internal"]:,}** private.')
-    return f'{line} The charts above cover {len(code_repos())} public repositories.'
-
-
 SECTIONS = (
     ('hero', lambda: picture('hero', f'{PROFILE["name"]}, {PROFILE["role"]} at {PROFILE["company"]}. A design-tool view of the name with an inspect panel listing team, focus, location and stack, and a bar chart of GitHub contributions over the latest 13 weeks.')),
     ('projects', projects_section),
@@ -1149,7 +1140,6 @@ SECTIONS = (
     ('activity-data', activity_summary),
     ('daily-activity', daily_activity),
     ('codebase', lambda: picture('codebase', 'Code across public repositories. A treemap of repositories sized by code bytes, language shares, and a dot for every owned repository.')),
-    ('repository-data', repository_summary),
     ('craft', lambda: picture('craft', 'Flow from design tokens to themes to React components to products: annotation tools, onboarding flows, schema-driven forms and assessments.')),
     ('stack', lambda: picture('stack', 'Frontend tools: React, Next.js, TypeScript, JavaScript, Redux Toolkit, SCSS, HTML, CSS, Tailwind CSS and Git. Icons travel around orbits.')),
     ('connect', lambda: picture('connect', f'Connect with {PROFILE["name"]} on LinkedIn or GitHub.', PROFILE['linkedin'])),

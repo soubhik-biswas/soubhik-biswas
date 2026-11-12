@@ -98,9 +98,6 @@ if inventory_path.is_file():
     assert all(type(inventory[key]) is int and inventory[key] >= 0 for key in keys)
     assert inventory['total'] == sum(inventory[key] for key in ('public', 'private', 'internal'))
     assert inventory['forks'] <= inventory['total']
-    assert re.findall(r'\*\*([\d,]+)\*\*', section('repository-data')) == [
-        f'{inventory["total"]:,}', f'{inventory["public"]:,}', f'{inventory["private"] + inventory["internal"]:,}']
-    assert inventory['updated'] in section('repository-data')
 daily = section('daily-activity')
 active_months = {day['date'][:7] for day in data['days'] if day['count']}
 assert daily.count('</details>') == len(active_months)
