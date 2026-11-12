@@ -8,7 +8,11 @@
     "link": "passlore.com",
     "summary": "Generates passwords, passphrases and PINs right in the browser.",
     "detail": "Pick where the password is going and it cuts one to suit. Nothing is uploaded.",
-    "stack": ["Next.js", "TypeScript", "Tailwind CSS"]
+    "stack": [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS"
+    ]
   },
   {
     "name": "AwakeTab",
@@ -19,7 +23,11 @@
     "link": "awaketab.com",
     "summary": "Keeps your screen awake for a timed session, and tells you when it is working.",
     "detail": "Built on the Screen Wake Lock API, with a ring timer and an installable app.",
-    "stack": ["Next.js", "TypeScript", "Wake Lock API"]
+    "stack": [
+      "Next.js",
+      "TypeScript",
+      "Wake Lock API"
+    ]
   },
   {
     "name": "Shareroom",
@@ -28,9 +36,29 @@
     "kind": "Web app",
     "url": "https://shareroom.app/",
     "link": "shareroom.app",
-    "summary": "A shared room for working together in the browser.",
-    "detail": "Open a room to share and preview work from one link.",
-    "stack": []
+    "summary": "A free room for working on code together: open one, send a link and pair on it live.",
+    "detail": "Built first for one-to-one pairing, tutoring and interviews. No sign-up, no ads and no install.",
+    "stack": [
+      "Next.js",
+      "Yjs",
+      "CodeMirror",
+      "Cloudflare Workers"
+    ]
+  },
+  {
+    "name": "DOM Scanner Pro",
+    "slug": "dom-scanner-pro",
+    "art": "domscanner",
+    "kind": "Chrome extension",
+    "url": "https://chromewebstore.google.com/detail/ieilfhodjeamdgphabmcbpjjpmhiddif",
+    "link": "Chrome Web Store",
+    "summary": "Inspect layouts, compare elements and share clear, redacted fix reports.",
+    "detail": "Measures what the browser rendered, runs accessibility and contrast checks, and keeps everything on your computer.",
+    "stack": [
+      "TypeScript",
+      "React",
+      "axe-core"
+    ]
   },
   {
     "name": "OiBuddy",
@@ -41,7 +69,10 @@
     "link": "VS Code Marketplace",
     "summary": "A small companion in your editor with gentle reminders to drink water and rest.",
     "detail": "Animated buddies, guided breaks, focus sounds and a daily progress view.",
-    "stack": ["JavaScript", "VS Code API"]
+    "stack": [
+      "JavaScript",
+      "VS Code API"
+    ]
   },
   {
     "name": "Prismwink",
@@ -52,17 +83,10 @@
     "link": "Source on GitHub",
     "summary": "Snap your fingers in Google Meet to vanish into dust and mute your mic.",
     "detail": "Hand tracking and the camera effect run on your own computer.",
-    "stack": ["TypeScript", "React", "MediaPipe"]
-  },
-  {
-    "name": "BucketPeek",
-    "slug": "bucketpeek",
-    "art": "bucketpeek",
-    "kind": "Web app",
-    "url": "https://github.com/soubhik-biswas/bucketpeek",
-    "link": "Source on GitHub",
-    "summary": "Browse an S3 bucket in the browser, preview any file and spot videos that will not play.",
-    "detail": "Search, timed share links, and on-the-fly video conversion with FFmpeg and HLS.",
-    "stack": ["Next.js", "AWS SDK", "FFmpeg"]
+    "stack": [
+      "TypeScript",
+      "React",
+      "MediaPipe"
+    ]
   }
 ]

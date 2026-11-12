@@ -491,27 +491,25 @@ def art_prismwink():
                   '@keyframes dust{0%,30%{opacity:0;transform:translate(0,0)}36%{opacity:1}62%,100%{opacity:0;transform:translate(var(--x),var(--y))}}')
 
 
-def art_bucketpeek():
-    body = ''
-    for index in range(6):
-        x, y = 16 + (index % 3) * 46, 20 + (index // 3) * 36
-        body += rect(x, y, 40, 30, GROUND, LINE, 6)
-        if index == 1:
-            body += f'<path d="M{x + 16} {y + 9}V{y + 21}L{x + 27} {y + 15}Z" fill="{PINK}"/>'
-        elif index == 3:
-            body += f'<path d="M{x + 7} {y + 22}L{x + 15} {y + 12}L{x + 21} {y + 18}L{x + 26} {y + 13}L{x + 33} {y + 22}Z" fill="{VIOLET}"/>'
-        else:
-            body += f'<path d="M{x + 8} {y + 10}H{x + 30}M{x + 8} {y + 15}H{x + 24}M{x + 8} {y + 20}H{x + 28}" stroke="{DIM}" stroke-width="2" stroke-linecap="round"/>'
-        body += f'<circle class="seen" style="animation-delay:{index * .8:.1f}s" cx="{x + 35}" cy="{y + 5}" r="3.5" fill="{CITRON}"/>'
-    body += f'<rect class="scan" x="14" y="18" width="44" height="34" rx="8" fill="none" stroke="{CITRON}" stroke-width="2"/>'
-    steps = ''.join(f'{index * 13.33:.2f}%{{transform:translate({(index % 3) * 46}px,{(index // 3) * 36}px)}}' for index in range(6))
-    return body, ('.scan{animation:scan 6s steps(1) infinite}.seen{opacity:0;animation:seen 6s steps(1) infinite both}'
-                  f'@keyframes scan{{{steps}80%,100%{{transform:translate(92px,36px);opacity:0}}}}'
-                  '@keyframes seen{0%{opacity:0}12%,92%{opacity:1}100%{opacity:0}}')
+def art_domscanner():
+    blocks = ((16, 38, 62, 54), (86, 38, 66, 24), (86, 68, 66, 24))
+    body = rect(16, 16, 136, 14, GROUND, LINE, 5) + f'<circle cx="25" cy="23" r="2.5" fill="{DIM}"/>' + rect(100, 20, 44, 6, LINE, 'none', 3)
+    for index, (x, y, w, h) in enumerate(blocks):
+        body += rect(x, y, w, h, GROUND, LINE, 6) + rect(x + 8, y + 9, w * .5, 5, DIM, 'none', 2.5)
+        if h > 30:
+            body += rect(x + 8, y + 21, w - 16, 4, LINE, 'none', 2) + rect(x + 8, y + 30, w - 24, 4, LINE, 'none', 2)
+    for index, (x, y, w, h) in enumerate(blocks):
+        label = f'{w * 4} × {h * 4}'
+        width = tw(label, 9, mono=True) + 10
+        pick = rect(x - 4, y - 4, w + 8, h + 8, 'none', PINK, 0, 'stroke-dasharray="3 3" stroke-opacity=".8"')
+        pick += rect(x, y, w, h, CITRON + '22', CITRON, 6, 'stroke-width="2"')
+        pick += rect(x + w - width, y + h - 15, width, 15, CITRON, 'none', 4) + text(x + w - width / 2, y + h - 4.5, label, 9, GROUND, anchor='middle', mono=True)
+        body += f'<g class="pick" style="opacity:{0 if index else 1};animation-delay:-{(6 - index * 2) % 6}s">{pick}</g>'
+    return body, '.pick{animation:pick 6s steps(1) infinite}@keyframes pick{0%{opacity:1}33.3%,100%{opacity:0}}'
 
 
 ART = {'passlore': art_passlore, 'awaketab': art_awaketab, 'shareroom': art_shareroom,
-       'oibuddy': art_oibuddy, 'prismwink': art_prismwink, 'bucketpeek': art_bucketpeek}
+       'domscanner': art_domscanner, 'oibuddy': art_oibuddy, 'prismwink': art_prismwink}
 
 
 def project_card(project, mobile=False):
