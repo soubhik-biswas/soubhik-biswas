@@ -94,7 +94,11 @@ feature_rows = readme.split('<!-- featured-projects:start -->')[1].split('<!-- f
 assert re.findall(r'^\| \[([^\]]+)\]\((https://[^)]+)\)', feature_rows, re.M) == [
     (project['name'], project['url']) for project in projects
 ]
-assert 'https://soubhik-biswas.github.io/soubhik-biswas/' in readme
+assert 'https://soubhik-biswas.github.io/soubhik-biswas/' not in readme
+daily = readme.split('<!-- daily-activity:start -->')[1].split('<!-- daily-activity:end -->')[0]
+assert daily.count('<details open>') == 1
+assert daily.count('</details>') == len({day['date'][:7] for day in data['days']})
+assert len(re.findall(r'^\| [A-Z][a-z]{2} \d+ \|', daily, re.M)) == len(data['days'])
 spec = importlib.util.spec_from_file_location('refresh', ROOT / 'scripts/update-data.py')
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)

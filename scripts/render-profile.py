@@ -5,7 +5,9 @@ import math
 import hashlib
 import re
 import xml.etree.ElementTree as ET
+from calendar import Calendar
 from html import escape
+from itertools import groupby
 from pathlib import Path
 from datetime import date, timedelta
 
@@ -13,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW_ROOT = 'https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/'
 PROFILE = json.loads((ROOT / 'profile.json').read_text())
 DATA = json.loads((ROOT / 'assets/public-data.json').read_text())
+COMMIT_ACTIVITY = json.loads((ROOT / 'assets/commit-activity.json').read_text())
 FEATURED = json.loads((ROOT / 'docs/projects.json').read_text())
 GROUND, INK, MUTED, TRACK = '#17162e', '#f7f5ff', '#c2bedc', '#39365a'
 CITRON, PERIWINKLE, BLUSH = '#d8f36b', '#ada9ff', '#f4a6d0'
@@ -371,6 +374,55 @@ def activity_table():
     ])
 
 
+def daily_activity():
+    commits = COMMIT_ACTIVITY
+    months = [list(days) for _, days in groupby(DATA['days'], lambda day: day['date'][:7])]
+    sections = [
+        'Bold numbers show GitHub contributions. Bars scale to the busiest day of each month.',
+        f'Commit and line counts cover the default branches of {commits["repositories"]} owned public repositories '
+        f'from {commits["from"]} through {commits["to"]} (UTC). A dash marks dates outside that snapshot.',
+    ]
+    for index, days in enumerate(reversed(months)):
+        first_day = date.fromisoformat(days[0]['date'])
+        counts = {date.fromisoformat(day['date']): day['count'] for day in days}
+        peak = max(1, max(counts.values()))
+        rows = [
+            '<details open>' if index == 0 else '<details>',
+            f'<summary>{first_day:%B %Y} · {sum(counts.values()):,} contributions</summary>',
+            '',
+            '| Mon | Tue | Wed | Thu | Fri | Sat | Sun |',
+            '| --- | --- | --- | --- | --- | --- | --- |',
+        ]
+        for week in Calendar().monthdatescalendar(first_day.year, first_day.month):
+            cells = []
+            for day in week:
+                count = counts.get(day)
+                if count is None:
+                    cells.append('')
+                elif count:
+                    bar = '▮' * math.ceil(count * 5 / peak)
+                    cells.append(f'**{count:,}**<br>{bar}<br><sub>{day.day}</sub>')
+                else:
+                    cells.append(f'<br><br><sub>{day.day}</sub>')
+            rows.append('| ' + ' | '.join(cells) + ' |')
+        rows.extend([
+            '',
+            '| Date | Contributions | Commits | Lines added | Lines removed |',
+            '| --- | ---: | ---: | ---: | ---: |',
+        ])
+        for day in days:
+            iso_date = day['date']
+            details = commits['days'].get(iso_date, {})
+            values = [
+                f'{details.get(key, 0):,}' if commits['from'] <= iso_date <= commits['to'] else '—'
+                for key in ('commits', 'additions', 'deletions')
+            ]
+            rows.append('| ' + ' | '.join([short_date(iso_date), f'{day["count"]:,}', *values]) + ' |')
+        rows.extend(['', '</details>'])
+        sections.append('\n'.join(rows))
+    return '\n\n'.join(sections)
+
+
 def repository_inventory():
     path = ROOT / 'docs/repository-inventory.json'
     if not path.is_file():
@@ -484,6 +536,7 @@ if __name__ == '__main__':
     )
     sections = (
         ('activity-data', activity_table),
+        ('daily-activity', daily_activity),
         ('repository-inventory', repository_inventory),
         ('repository-data', repository_summary),
         ('featured-projects', projects_table),

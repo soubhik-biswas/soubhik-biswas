@@ -23,6 +23,26 @@ class AnalyticsTests(unittest.TestCase):
             renderer()
         return ET.fromstring('<svg>'+output.call_args.args[5]+'</svg>')
 
+    def test_daily_activity_keeps_unavailable_commit_data_distinct_from_zero(self):
+        days = [
+            {'date': '2026-01-31', 'count': 5},
+            {'date': '2026-02-01', 'count': 0},
+            {'date': '2026-02-02', 'count': 10},
+        ]
+        commits = {
+            'from': '2026-01-31',
+            'to': '2026-02-01',
+            'repositories': 1,
+            'days': {'2026-01-31': {'commits': 2, 'additions': 14, 'deletions': 3}},
+        }
+        with patch.object(render, 'DATA', {'days': days}), patch.object(render, 'COMMIT_ACTIVITY', commits):
+            activity = render.daily_activity()
+        self.assertIn('<details open>\n<summary>February 2026', activity)
+        self.assertIn('<details>\n<summary>January 2026', activity)
+        self.assertIn('| Jan 31 | 5 | 2 | 14 | 3 |', activity)
+        self.assertIn('| Feb 1 | 0 | 0 | 0 | 0 |', activity)
+        self.assertIn('| Feb 2 | 10 | — | — | — |', activity)
+
     # Value: protects=streak reset and 7/30/91-day boundaries; fails_when=zero days
     # extend streaks or older contributions enter recent windows; why_new=derived
     # metrics had no fixtures; seam=none; no_claim=upstream calendar accuracy.
