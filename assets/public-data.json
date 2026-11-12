@@ -3,6 +3,19 @@
   "source": "https://github.com/soubhik-biswas",
   "repos": [
     {
+      "name": "awaketab",
+      "url": "https://github.com/soubhik-biswas/awaketab",
+      "stars": 0,
+      "forks": 0,
+      "language": "TypeScript",
+      "languages": {
+        "TypeScript": 1874771,
+        "CSS": 52304,
+        "JavaScript": 49227,
+        "HTML": 801
+      }
+    },
+    {
       "name": "bucketpeek",
       "url": "https://github.com/soubhik-biswas/bucketpeek",
       "stars": 0,
@@ -101,12 +114,12 @@
     "created_at": "2019-08-25T15:58:15Z"
   },
   "languages": {
-    "TypeScript": 2080134,
-    "CSS": 65833,
+    "TypeScript": 3954905,
+    "CSS": 118137,
+    "JavaScript": 66539,
+    "HTML": 98778,
     "Shell": 8354,
     "Dockerfile": 2198,
-    "JavaScript": 17312,
-    "HTML": 97977,
     "Python": 44213
   },
   "days": [
@@ -1632,8 +1645,8 @@
     },
     {
       "date": "2026-09-09",
-      "level": 0,
-      "count": 0
+      "level": 1,
+      "count": 8
     },
     {
       "date": "2026-09-10",
@@ -1647,13 +1660,13 @@
     },
     {
       "date": "2026-09-12",
-      "level": 0,
-      "count": 0
+      "level": 1,
+      "count": 13
     },
     {
       "date": "2026-09-13",
-      "level": 0,
-      "count": 0
+      "level": 1,
+      "count": 1
     },
     {
       "date": "2026-09-14",
@@ -1718,22 +1731,22 @@
     {
       "date": "2026-09-26",
       "level": 1,
-      "count": 2
+      "count": 84
     },
     {
       "date": "2026-09-27",
       "level": 1,
-      "count": 2
+      "count": 105
     },
     {
       "date": "2026-09-28",
-      "level": 0,
-      "count": 0
+      "level": 1,
+      "count": 155
     },
     {
       "date": "2026-09-29",
-      "level": 0,
-      "count": 0
+      "level": 1,
+      "count": 59
     },
     {
       "date": "2026-09-30",
@@ -1848,17 +1861,17 @@
     {
       "date": "2026-10-22",
       "level": 1,
-      "count": 66
+      "count": 75
     },
     {
       "date": "2026-10-23",
       "level": 1,
-      "count": 107
+      "count": 116
     },
     {
       "date": "2026-10-24",
       "level": 1,
-      "count": 186
+      "count": 188
     },
     {
       "date": "2026-10-25",
@@ -1888,12 +1901,12 @@
     {
       "date": "2026-10-30",
       "level": 1,
-      "count": 115
+      "count": 206
     },
     {
       "date": "2026-10-31",
       "level": 1,
-      "count": 30
+      "count": 212
     },
     {
       "date": "2026-11-01",
@@ -1933,7 +1946,7 @@
     {
       "date": "2026-11-08",
       "level": 2,
-      "count": 258
+      "count": 259
     },
     {
       "date": "2026-11-09",
@@ -1953,8 +1966,8 @@
     {
       "date": "2026-11-12",
       "level": 4,
-      "count": 938
+      "count": 940
     }
   ],
-  "contributions": 3195
+  "contributions": 3912
 }

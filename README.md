@@ -1,8 +1,8 @@
 # Soubhik Biswas · Lead Frontend Engineer
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview-mobile.svg?v=23b0e0aba06f" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview.svg?v=46e61c164974" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer. A bar chart plots publicly visible GitHub contributions over the latest 13 weeks." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview-mobile.svg?v=77d0ebf1ddce" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview.svg?v=2e8a09648097" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer. A bar chart plots publicly visible GitHub contributions over the latest 13 weeks." />
 </picture>
 
 **[Explore the interactive dashboard](https://soubhik-biswas.github.io/soubhik-biswas/)** · Filter contribution history, inspect chart points, and compare public code.
@@ -15,18 +15,18 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 ## Contribution trends
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity-mobile.svg?v=104dc044422d" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity.svg?v=75aa1b924ebf" width="100%" alt="Contribution totals and active days in two 30-day windows, with a weekday breakdown over the latest 13 weeks." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity-mobile.svg?v=fd8a71d7f07c" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity.svg?v=6de077c8e2d1" width="100%" alt="Contribution totals and active days in two 30-day windows, with a weekday breakdown over the latest 13 weeks." />
 </picture>
 
 <!-- activity-data:start -->
 
 | Public GitHub activity | Contributions | Active days |
 | --- | ---: | ---: |
-| 2026-10-14 to 2026-11-12 | **3,086** | **24 / 30** |
-| 2026-09-14 to 2026-10-13 | 16 | 4 / 30 |
+| 2026-10-14 to 2026-11-12 | **3,382** | **24 / 30** |
+| 2026-09-14 to 2026-10-13 | 415 | 6 / 30 |
 
-**3,195** contributions across the displayed calendar · **39** active days · **23**-day longest streak
+**3,912** contributions across the displayed calendar · **44** active days · **23**-day longest streak
 
 <!-- activity-data:end -->
 
@@ -50,20 +50,20 @@ As of 2026-11-13 IST. The total includes owned forks (**0** in this snapshot). [
 
 | Owned public repos excluding forks | Stars | Forks | Followers |
 | ---: | ---: | ---: | ---: |
-| **8** | **1** | **0** | **3** |
+| **9** | **1** | **0** | **3** |
 
 <!-- repository-data:end -->
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/codebase-mobile.svg?v=87cbca3a1667" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/codebase.svg?v=d99c190c3cad" width="100%" alt="Language share by detected code bytes across owned public repositories and available featured repositories." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/codebase-mobile.svg?v=cf3d7b685d45" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/codebase.svg?v=a44206655e77" width="100%" alt="Language share by detected code bytes across owned public repositories and available featured repositories." />
 </picture>
 
 [Browse the public data snapshot](assets/public-data.json) · [Refresh workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life-mobile.svg?v=42f4ffee2c1c" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life.svg?v=a87ecec5797b" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life-mobile.svg?v=98e4163a4f58" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life.svg?v=f2a2d9bcc0ed" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
 </picture>
 
 My work connects reusable React components, configurable themes and interactive documentation with the details of each product. That includes shared validation, coding interfaces, authentication, browser extensions and resumable uploads.
@@ -94,8 +94,8 @@ React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML ·
 [Browse the month-by-month calendar](https://soubhik-biswas.github.io/soubhik-biswas/#calendar)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar-mobile.svg?v=5b0f1c44e839" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar.svg?v=5e9dd94a1042" width="100%" alt="Annual GitHub contribution calendar. Each square is one day, and its color shows the recorded activity level. The calendar includes totals for contributions and active days." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar-mobile.svg?v=a10db2ab2ae5" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar.svg?v=05c8a4bb372b" width="100%" alt="Annual GitHub contribution calendar. Each square is one day, and its color shows the recorded activity level. The calendar includes totals for contributions and active days." />
 </picture>
 
 <picture>
