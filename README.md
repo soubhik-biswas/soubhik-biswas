@@ -1,8 +1,8 @@
 # Soubhik Biswas · Lead Frontend Engineer
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview-mobile.svg?v=7973afd25689" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview.svg?v=d3ee8e83485b" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer. A bar chart plots publicly visible GitHub contributions over the latest 13 weeks." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview-mobile.svg?v=23b0e0aba06f" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview.svg?v=46e61c164974" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer. A bar chart plots publicly visible GitHub contributions over the latest 13 weeks." />
 </picture>
 
 **[Explore the interactive dashboard](https://soubhik-biswas.github.io/soubhik-biswas/)** · Filter contribution history, inspect chart points, and compare public code.
@@ -15,18 +15,18 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 ## Contribution trends
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity-mobile.svg?v=9c951063a7a3" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity.svg?v=7da66394cebd" width="100%" alt="Contribution totals and active days in two 30-day windows, with a weekday breakdown over the latest 13 weeks." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity-mobile.svg?v=104dc044422d" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity.svg?v=75aa1b924ebf" width="100%" alt="Contribution totals and active days in two 30-day windows, with a weekday breakdown over the latest 13 weeks." />
 </picture>
 
 <!-- activity-data:start -->
 
 | Public GitHub activity | Contributions | Active days |
 | --- | ---: | ---: |
-| 2026-10-14 to 2026-11-12 | **3,085** | **24 / 30** |
+| 2026-10-14 to 2026-11-12 | **3,086** | **24 / 30** |
 | 2026-09-14 to 2026-10-13 | 16 | 4 / 30 |
 
-**3,194** contributions across the displayed calendar · **39** active days · **23**-day longest streak
+**3,195** contributions across the displayed calendar · **39** active days · **23**-day longest streak
 
 <!-- activity-data:end -->
 
@@ -48,8 +48,8 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 [Browse the public data snapshot](assets/public-data.json) · [Refresh workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life-mobile.svg?v=42f4ffee2c1c" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life.svg?v=a87ecec5797b" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life-mobile.svg?v=98e4163a4f58" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life.svg?v=f2a2d9bcc0ed" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
 </picture>
 
 My work connects reusable React components, configurable themes and interactive documentation with the details of each product. That includes shared validation, coding interfaces, authentication, browser extensions and resumable uploads.
@@ -80,8 +80,8 @@ React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML ·
 [Browse the month-by-month calendar](https://soubhik-biswas.github.io/soubhik-biswas/#calendar)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar-mobile.svg?v=a3f918357d01" />
-  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar.svg?v=7be0cf5f5355" width="100%" alt="Annual GitHub contribution calendar. Each square is one day, and its color shows the recorded activity level. The calendar includes totals for contributions and active days." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar-mobile.svg?v=5b0f1c44e839" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar.svg?v=5e9dd94a1042" width="100%" alt="Annual GitHub contribution calendar. Each square is one day, and its color shows the recorded activity level. The calendar includes totals for contributions and active days." />
 </picture>
 
 <picture>
