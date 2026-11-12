@@ -7,9 +7,10 @@ import re
 import xml.etree.ElementTree as ET
 from html import escape
 from pathlib import Path
-from datetime import date
+from datetime import date, timedelta
 
 ROOT = Path(__file__).resolve().parents[1]
+RAW_ROOT = 'https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/'
 PROFILE = json.loads((ROOT / 'profile.json').read_text())
 DATA = json.loads((ROOT / 'assets/public-data.json').read_text())
 FEATURED = json.loads((ROOT / 'docs/projects.json').read_text())
@@ -45,7 +46,7 @@ text{font-weight:600}
 .r1,.s1{opacity:1}
 .ring{stroke-dasharray:160;stroke-dashoffset:20;animation:ring 5s ease-in-out infinite}
 .bar{transform-box:fill-box;transform-origin:left;animation:grow 1.4s ease-out both}
-.arrow{animation:nudge 3s ease-in-out infinite}.city-top{animation:twinkle 5s ease-in-out infinite}
+.arrow{animation:nudge 3s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-7px)}}
 @keyframes pulse{50%{opacity:.4}}
 @keyframes progress{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
@@ -54,7 +55,6 @@ text{font-weight:600}
 @keyframes ring{50%{stroke-dashoffset:100}}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes nudge{50%{transform:translateX(6px)}}
-@keyframes twinkle{50%{opacity:.65}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}.role,.story{display:none}.r1,.s1{display:inline;opacity:1}}
 '''
 
@@ -119,7 +119,7 @@ def hero(mobile=False):
         body += '<path d="M32 294H468" stroke="#625a86"/>'+group(32, 308, weekly)
     else:
         body += '<path d="M486 32V312" stroke="#625a86"/>'+group(525, 31, weekly)
-    svg('hero-mobile.svg' if mobile else 'hero.svg', w, h, 'Soubhik Biswas — Lead Frontend Engineer',
+    svg('profile-overview-mobile.svg' if mobile else 'profile-overview.svg', w, h, 'Soubhik Biswas — Lead Frontend Engineer',
         f'Frontend architecture and design systems. {sum(weeks):,} publicly visible contributions over 13 weeks ending {days[-1]["date"]}. Peak week: {peak:,} contributions.', body)
 
 
@@ -402,36 +402,66 @@ def connect(mobile=False):
     svg('connect-mobile.svg' if mobile else 'connect.svg',500 if mobile else 1000,535 if mobile else 296,'Connect with Soubhik Biswas','Connect on LinkedIn at biswas-soubhik or on GitHub at soubhik-biswas. Clickable links follow this panel.',body)
 
 
-def city():
-    days=DATA['days']
-    body=text(30,58,'Contribution terrain',32)
-    body+=text(30,93,f'{days[0]["date"]} to {days[-1]["date"]} · GitHub calendar',13,MUTED,True)
-    start=date.fromisoformat(days[0]['date'])
+def calendar(mobile=False):
+    days = DATA['days']
+    first, last = [date.fromisoformat(day['date']) for day in (days[0], days[-1])]
+    first_week = first - timedelta(days=first.weekday())
+    week_count = (last-first_week).days//7 + 1
+    weeks_per_band = (week_count+1)//2 if mobile else week_count
+    bands = [[] for _ in range(2 if mobile else 1)]
     for day in days:
-        day_date=date.fromisoformat(day['date']); n=(day_date-start).days; week=n//7; weekday=n%7
-        x=133+week*13.2-weekday*12; y=168+week*3.7+weekday*13.6
-        level=day['level']; height=3+level*13
-        top=[(x,y-height),(x+11,y+3-height),(x,y+9-height),(x-11,y+6-height)]
-        p=lambda pts:' '.join(f'{a:.1f},{b:.1f}' for a,b in pts)
-        body+=f'<g><title>{day["date"]}: {day["count"]} contributions</title>'
-        body+=f'<polygon points="{p([top[1],top[2],(x,y+9),(x+11,y+3)])}" fill="{["#302b48","#50567f","#7e9050","#736ac0","#a35f8f"][level]}"/>'
-        body+=f'<polygon points="{p([top[2],top[3],(x-11,y+6),(x,y+9)])}" fill="{["#27223e","#3d4063","#5f713d","#51468e","#773c67"][level]}"/>'
-        body+=f'<polygon points="{p(top)}" fill="{["#37334f","#7883af",CITRON,PERIWINKLE,BLUSH][level]}" stroke="{GROUND}" stroke-width=".6"'+(' class="city-top"' if level else '')+'/></g>'
-    body+=text(30,493,f'{DATA["contributions"]:,} contributions',20,CITRON)+text(30,521,'One column per day. Height follows GitHub’s five activity levels.',13,MUTED)
-    for i,color in enumerate(['#37334f','#7883af',CITRON,PERIWINKLE,BLUSH]):
-        body+=rect(805+i*28,494,19,12,color,'none',3)
-    body+=text(804,533,'LESS → MORE',10,MUTED,True)
-    svg('contribution-city.svg',1000,554,'Soubhik Biswas public contribution calendar',f"An isometric view of {len(days)} days of publicly visible GitHub activity. Heights encode five activity levels. {DATA['contributions']} contributions. Updated {DATA['updated']}.",body)
+        day_date = date.fromisoformat(day['date'])
+        week, weekday = divmod((day_date-first_week).days, 7)
+        band, column = divmod(week, weeks_per_band)
+        bands[band].append((day_date, column, weekday, day))
+
+    colors = ('#383554', '#58517e', '#8178bb', PERIWINKLE, CITRON)
+    body = text(32, 53, 'Contribution calendar', 32)
+    body += text(32, 84, f'{first:%b} {first.day}, {first.year} – {last:%b} {last.day}, {last.year}', 14, MUTED)
+    step = 15 if mobile else 16
+    for band_index, band in enumerate(bands):
+        if not band:
+            continue
+        top = 142 + band_index*182
+        month_labels = [(day_date, column) for day_date, column, _, _ in band if day_date.day == 1]
+        first_day, first_column, _, _ = band[0]
+        if not month_labels or month_labels[0][1]-first_column >= 3:
+            month_labels.insert(0, (first_day, first_column))
+        for day_date, column in month_labels:
+            body += text(64+column*step, top-14, f'{day_date:%b}', 12, MUTED)
+        for weekday, label in ((0, 'Mon'), (2, 'Wed'), (4, 'Fri'), (6, 'Sun')):
+            body += text(32, top+10+weekday*17, label, 11, MUTED)
+        for day_date, column, weekday, day in band:
+            body += f'<g><title>{day_date}: {day["count"]:,} contributions</title>'
+            body += rect(64+column*step, top+weekday*17, 12, 12, colors[day['level']], 'none', 2)
+            body += '</g>'
+
+    active = sum(day['count'] > 0 for day in days)
+    total = DATA['contributions']
+    summary_y = 484 if mobile else 303
+    body += text(32, summary_y, f'{total:,} contributions · {active:,} active days', 18)
+    legend_x, legend_y = (32, 513) if mobile else (763, 292)
+    body += text(legend_x, legend_y+11, 'Less', 12, MUTED)
+    for index, color in enumerate(colors):
+        body += rect(legend_x+36+index*18, legend_y, 13, 13, color, 'none', 2)
+    body += text(legend_x+130, legend_y+11, 'More', 12, MUTED)
+    svg('contribution-calendar-mobile.svg' if mobile else 'contribution-calendar.svg',
+        500 if mobile else 1000, 552 if mobile else 339,
+        'Soubhik Biswas public GitHub contribution calendar',
+        f'Daily contributions from {first} to {last}. Colors encode five activity levels. {total:,} contributions on {active:,} active days.', body)
 
 
 if __name__ == '__main__':
     for mobile in (False, True):
-        for renderer in (hero, about, stack, activity, codebase, connect):
+        for renderer in (hero, about, stack, activity, codebase, connect, calendar):
             renderer(mobile)
-    city()
     readme = ROOT / 'README.md'
     content = readme.read_text()
-    content = re.sub(r'(\./[\w-]+\.svg)\?v=[\w-]+', lambda m: m[1] + '?v=' + hashlib.sha256((ROOT / m[1]).read_bytes()).hexdigest()[:12], content)
+    content = re.sub(
+        rf'{re.escape(RAW_ROOT)}([\w-]+\.svg)\?v=[\w-]+',
+        lambda match: f'{RAW_ROOT}{match[1]}?v={hashlib.sha256((ROOT / match[1]).read_bytes()).hexdigest()[:12]}',
+        content,
+    )
     sections = (
         ('activity-data', activity_table),
         ('repository-data', repository_summary),
@@ -443,4 +473,4 @@ if __name__ == '__main__':
             lambda _: '\n\n' + build() + '\n\n', content, flags=re.DOTALL,
         )
     readme.write_text(content)
-    print('Built 13 self-contained profile graphics')
+    print('Built 14 self-contained profile graphics')

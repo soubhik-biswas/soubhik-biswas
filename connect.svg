@@ -14,7 +14,7 @@ text{font-weight:600}
 .r1,.s1{opacity:1}
 .ring{stroke-dasharray:160;stroke-dashoffset:20;animation:ring 5s ease-in-out infinite}
 .bar{transform-box:fill-box;transform-origin:left;animation:grow 1.4s ease-out both}
-.arrow{animation:nudge 3s ease-in-out infinite}.city-top{animation:twinkle 5s ease-in-out infinite}
+.arrow{animation:nudge 3s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-7px)}}
 @keyframes pulse{50%{opacity:.4}}
 @keyframes progress{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
@@ -23,7 +23,6 @@ text{font-weight:600}
 @keyframes ring{50%{stroke-dashoffset:100}}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes nudge{50%{transform:translateX(6px)}}
-@keyframes twinkle{50%{opacity:.65}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}.role,.story{display:none}.r1,.s1{display:inline;opacity:1}}
 </style>
 <rect x="1" y="1" width="998" height="294" rx="24" fill="#17162e" stroke="url(#border)" />

@@ -8,6 +8,7 @@ from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+RAW_ROOT = 'https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/'
 SVG = '{http://www.w3.org/2000/svg}'
 data = json.loads((ROOT / 'assets/public-data.json').read_text())
 assert 300 <= len(data['days']) <= 372
@@ -28,8 +29,8 @@ if all('languages' in repo for repo in data['repos']):
             totals[language] = totals.get(language, 0) + amount
     assert totals == data['languages']
 files = list(ROOT.glob('*.svg'))
-panels = ['hero', 'about-life', 'stack', 'activity', 'codebase', 'connect']
-expected = {name+suffix+'.svg' for name in panels for suffix in ('', '-mobile')} | {'contribution-city.svg'}
+panels = ['profile-overview', 'about-life', 'stack', 'activity', 'codebase', 'connect', 'contribution-calendar']
+expected = {name+suffix+'.svg' for name in panels for suffix in ('', '-mobile')}
 assert {path.name for path in files} == expected, 'Missing or unexpected portfolio panels'
 for path in files:
     source = path.read_text()
@@ -38,8 +39,7 @@ for path in files:
     assert root.find(SVG + 'title') is not None and root.find(SVG + 'desc') is not None
     assert 'prefers-reduced-motion' in source
     assert 'data:font/woff2;base64,' in source
-    if path.stem in {'hero', 'hero-mobile', 'activity', 'activity-mobile', 'codebase', 'codebase-mobile'}:
-        assert root.find('.//' + SVG + 'image') is None, f'Unexpected raster in {path.name}'
+    assert root.find('.//' + SVG + 'image') is None, f'Unexpected raster in {path.name}'
     ids = [e.attrib['id'] for e in root.iter() if 'id' in e.attrib]
     assert len(set(ids)) == len(ids), f'Duplicate identifiers in {path.name}'
     for element in root.iter():
@@ -51,8 +51,10 @@ for path in files:
     for target in re.findall(r'url\(#([^)]+)\)', source):
         assert target in ids, f'Missing definition {target} in {path.name}'
 readme = (ROOT / 'README.md').read_text()
-for image in re.findall(r'(?:src|srcset)="(\./[^"?]+)', readme):
-    assert (ROOT / image).is_file(), f'Broken README image {image}'
+images = re.findall(rf'(?:src|srcset)="{re.escape(RAW_ROOT)}([\w-]+\.svg)\?v=([\da-f]{{12}})"', readme)
+assert {name for name, _ in images} == expected, 'README must link every graphic through its versioned raw URL'
+for filename, version in images:
+    assert version == hashlib.sha256((ROOT / filename).read_bytes()).hexdigest()[:12], f'Stale image cache key: {filename}'
 assert readme.count('<picture>') == len(panels)
 assert readme.count('<!-- activity-data:start -->') == 1
 assert readme.count('<!-- activity-data:end -->') == 1
@@ -65,8 +67,6 @@ assert re.findall(r'\*\*([\d,]+)\*\*', repository_data) == [
     f'{data["account"]["followers"]:,}',
 ]
 assert 'id-dashboard' not in readme and 'avatar.jpg' not in readme
-for filename, version in re.findall(r'\./([\w-]+\.svg)\?v=([\w-]+)', readme):
-    assert version == hashlib.sha256((ROOT / filename).read_bytes()).hexdigest()[:12], f'Stale image cache key: {filename}'
 assert 'mailto:' not in readme
 assert 'email' not in json.loads((ROOT / 'profile.json').read_text())
 for path in [ROOT/'README.md', ROOT/'profile.json', ROOT/'assets/public-data.json', *files]:

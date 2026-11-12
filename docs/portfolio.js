@@ -1,4 +1,4 @@
-import { mountActivityMap } from './activity-map.js';
+import { mountActivityCalendar } from './activity-calendar.js';
 import { renderRepositoryStats } from './repository-stats.js';
 
 const byId = (id) => document.getElementById(id);
@@ -304,7 +304,7 @@ const projectsRequest = getJSON('./projects.json').then((projects) => {
 try {
   const [{ data, fallback }, projects] = await Promise.all([getSnapshot(), projectsRequest]);
   mountActivity(data);
-  mountActivityMap(data.days);
+  mountActivityCalendar(data.days);
   mountLanguages(data, projects);
   renderRepositoryStats(data);
   const through = formatDate(data.days.at(-1).date);

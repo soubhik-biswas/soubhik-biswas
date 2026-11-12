@@ -1,8 +1,8 @@
 # Soubhik Biswas · Lead Frontend Engineer
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./hero-mobile.svg?v=34f9485be0a7" />
-  <img src="./hero.svg?v=2641b194e847" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer. A bar chart plots publicly visible GitHub contributions over the latest 13 weeks." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview-mobile.svg?v=7973afd25689" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/profile-overview.svg?v=d3ee8e83485b" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer. A bar chart plots publicly visible GitHub contributions over the latest 13 weeks." />
 </picture>
 
 **[Explore the interactive dashboard](https://soubhik-biswas.github.io/soubhik-biswas/)** · Filter contribution history, inspect chart points, and compare public code.
@@ -15,8 +15,8 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 ## Contribution trends
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./activity-mobile.svg?v=83d31453bdcc" />
-  <img src="./activity.svg?v=032659ed6fc9" width="100%" alt="Contribution totals and active days in two 30-day windows, with a weekday breakdown over the latest 13 weeks." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity-mobile.svg?v=9c951063a7a3" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/activity.svg?v=7da66394cebd" width="100%" alt="Contribution totals and active days in two 30-day windows, with a weekday breakdown over the latest 13 weeks." />
 </picture>
 
 <!-- activity-data:start -->
@@ -41,15 +41,15 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 <!-- repository-data:end -->
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./codebase-mobile.svg?v=df0e813ebb3e" />
-  <img src="./codebase.svg?v=049b889a4361" width="100%" alt="Language share by detected code bytes across owned public repositories and available featured repositories." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/codebase-mobile.svg?v=87cbca3a1667" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/codebase.svg?v=d99c190c3cad" width="100%" alt="Language share by detected code bytes across owned public repositories and available featured repositories." />
 </picture>
 
 [Browse the public data snapshot](assets/public-data.json) · [Refresh workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=3224d57322d5" />
-  <img src="./about-life.svg?v=9ba6103d8e53" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life-mobile.svg?v=42f4ffee2c1c" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/about-life.svg?v=a87ecec5797b" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
 </picture>
 
 My work connects reusable React components, configurable themes and interactive documentation with the details of each product. That includes shared validation, coding interfaces, authentication, browser extensions and resumable uploads.
@@ -69,19 +69,24 @@ My work connects reusable React components, configurable themes and interactive 
 ## Tools behind the work
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./stack-mobile.svg?v=d94247bb9662" />
-  <img src="./stack.svg?v=65cd2d47d7f2" width="100%" alt="Frontend tools: React, Next.js, TypeScript, JavaScript, Redux Toolkit, SCSS, HTML, CSS, Tailwind CSS and Git. Animated technology orbits with a reduced-motion fallback." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/stack-mobile.svg?v=228c24059975" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/stack.svg?v=d31e21696489" width="100%" alt="Frontend tools: React, Next.js, TypeScript, JavaScript, Redux Toolkit, SCSS, HTML, CSS, Tailwind CSS and Git. Animated technology orbits with a reduced-motion fallback." />
 </picture>
 
 React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML · CSS · Tailwind CSS · Git
 
 ## Contribution calendar
 
-<img src="./contribution-city.svg?v=db58a2175cdc" width="100%" alt="Isometric view of the GitHub contribution calendar. Each column represents one displayed day, and height encodes GitHub’s five activity levels." />
+[Browse the month-by-month calendar](https://soubhik-biswas.github.io/soubhik-biswas/#calendar)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./connect-mobile.svg?v=55e70c53f346" />
-  <img src="./connect.svg?v=9d5c2c2b996d" width="100%" alt="Connect with Soubhik Biswas about frontend architecture, design systems and product engineering." />
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar-mobile.svg?v=a3f918357d01" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/contribution-calendar.svg?v=7be0cf5f5355" width="100%" alt="Annual GitHub contribution calendar. Each square is one day, and its color shows the recorded activity level. The calendar includes totals for contributions and active days." />
+</picture>
+
+<picture>
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/connect-mobile.svg?v=22a5f64704c7" />
+  <img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/connect.svg?v=735a4ded9f9c" width="100%" alt="Connect with Soubhik Biswas about frontend architecture, design systems and product engineering." />
 </picture>
 
 [Connect on LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Explore my GitHub](https://github.com/soubhik-biswas)

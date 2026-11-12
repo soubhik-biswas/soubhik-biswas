@@ -6,8 +6,8 @@
   <meta name="description" content="Explore Soubhik Biswas’s public GitHub activity and selected products.">
   <meta name="theme-color" content="#17162e">
   <title>Soubhik Biswas · Engineering portfolio</title>
-  <link rel="stylesheet" href="portfolio.css">
-  <script type="module" src="portfolio.js"></script>
+  <link rel="stylesheet" href="portfolio.css?v=calendar">
+  <script type="module" src="portfolio.js?v=calendar"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -96,29 +96,27 @@
       </dl>
     </section>
 
-    <section class="report terrain" id="terrain" aria-labelledby="terrain-title" data-needs-data hidden>
+    <section class="report calendar" id="calendar" aria-labelledby="calendar-title" data-needs-data hidden>
       <div class="section-head">
         <div>
-          <h2 id="terrain-title">Contribution terrain</h2>
-          <p>Explore each day in the public calendar.</p>
+          <h2 id="calendar-title">Contribution calendar</h2>
+          <p>Select a date to see its GitHub activity.</p>
         </div>
-        <p class="terrain-peak" id="terrain-peak"></p>
+        <p class="calendar-peak" id="calendar-peak"></p>
       </div>
-      <div class="terrain-viewport" id="terrain-viewport">
-        <svg id="terrain-map" role="img" aria-label="Calendar arranged in weeks. Column height shows daily contributions. Use the date controls below to inspect a day."></svg>
-      </div>
-      <div class="terrain-detail">
-        <div class="terrain-navigation">
-          <button type="button" id="terrain-prev" aria-label="Previous day">←</button>
-          <div>
-            <label for="terrain-scrub">Inspect a day</label>
-            <input id="terrain-scrub" type="range" min="0" max="0" value="0">
-          </div>
-          <button type="button" id="terrain-next" aria-label="Next day">→</button>
+      <div class="calendar-toolbar">
+        <button type="button" id="calendar-prev" aria-label="Previous month">←</button>
+        <div aria-live="polite">
+          <h3 id="calendar-month"></h3>
+          <p id="calendar-month-total" class="muted"></p>
         </div>
-        <output for="terrain-scrub" id="terrain-point"></output>
+        <button type="button" id="calendar-next" aria-label="Next month">→</button>
       </div>
-      <p class="muted source-note">Each column is one day. Heights use a square-root scale so quieter days stay visible.</p>
+      <div class="calendar-weekdays" aria-hidden="true">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+      </div>
+      <div class="calendar-grid" id="calendar-grid" role="group" aria-labelledby="calendar-month"></div>
+      <output class="calendar-detail" id="calendar-point"></output>
     </section>
 
     <section class="report code" id="code" aria-labelledby="code-title">

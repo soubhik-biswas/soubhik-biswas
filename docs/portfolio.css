@@ -145,53 +145,65 @@ td:first-child, th:first-child { text-align: left; }
 .repository-totals dd { margin: .15rem 0 0; font-size: clamp(1.5rem,3vw,2rem); font-variant-numeric: tabular-nums; }
 @media (max-width: 430px) { .repository-totals dl { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 
-.section-head .terrain-peak { color: var(--citron); max-width: 38ch; }
-.terrain-viewport {
-  margin: 1rem 0 .8rem;
-  overflow-x: auto;
-  border: 1px solid var(--rule);
-  border-radius: .55rem;
-  background: var(--inset);
-  scrollbar-color: var(--rule) var(--inset);
-}
-#terrain-map { display: block; width: 100%; min-width: 49rem; }
-#terrain-map text { fill: var(--muted); font-size: 11px; }
-.terrain-day { cursor: crosshair; }
-.terrain-day .terrain-top { fill: #49446e; }
-.terrain-day .terrain-front { fill: #39355b; }
-.terrain-day .terrain-side { fill: #302c50; }
-.terrain-day[data-level="1"] .terrain-top { fill: #746aa5; }
-.terrain-day[data-level="2"] .terrain-top { fill: #a39aea; }
-.terrain-day[data-level="3"] .terrain-top { fill: #c5d896; }
-.terrain-day[data-level="4"] .terrain-top { fill: var(--citron); }
-.terrain-day[data-level="1"] .terrain-front { fill: #575080; }
-.terrain-day[data-level="2"] .terrain-front { fill: #6d64aa; }
-.terrain-day[data-level="3"] .terrain-front { fill: #75865a; }
-.terrain-day[data-level="4"] .terrain-front { fill: #82963c; }
-.terrain-day[data-level="3"] .terrain-side,
-.terrain-day[data-level="4"] .terrain-side { fill: #5e6e39; }
-.terrain-selection { stroke: var(--ink); stroke-width: 1.7; stroke-linejoin: round; fill: none; pointer-events: none; }
-.terrain-detail {
+.section-head .calendar-peak { color: var(--citron); max-width: 38ch; }
+.calendar-toolbar {
   display: grid;
-  grid-template-columns: minmax(10rem, 1fr) minmax(0, 1fr);
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
   align-items: center;
-  gap: .65rem 1.5rem;
-  padding: .65rem .85rem;
-  border-radius: .55rem;
+  gap: .65rem;
+  margin: 1.15rem 0 .65rem;
+  padding: .65rem;
   background: var(--inset);
+  border-radius: .55rem;
+  text-align: center;
 }
-.terrain-navigation { display: grid; grid-template-columns: 2.75rem minmax(0,1fr) 2.75rem; gap: .65rem; align-items: center; }
-.terrain-navigation button {
+.calendar-toolbar button {
   min-height: 2.75rem;
   background: var(--surface);
   color: var(--ink);
   border: 1px solid var(--rule);
   border-radius: .4rem;
 }
-.terrain-navigation button:disabled { cursor: default; opacity: .48; }
-.terrain-navigation label, .terrain-detail output { display: block; font-size: .85rem; }
-#terrain-scrub { width: 100%; margin: .35rem 0 0; accent-color: var(--citron); }
-.terrain-detail output { color: var(--citron); line-height: 1.45; font-variant-numeric: tabular-nums; }
-@media (max-width: 700px) {
-  .terrain-detail { grid-template-columns: 1fr; }
+.calendar-toolbar button:disabled { cursor: default; opacity: .38; }
+.calendar-toolbar h3 { font-size: clamp(1rem, 3vw, 1.35rem); }
+.calendar-toolbar p { margin-top: .25rem; font-size: .75rem; }
+.calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: .35rem; }
+.calendar-weekdays { text-align: center; color: var(--muted); font-size: .75rem; margin-bottom: .4rem; }
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .13rem;
+  min-width: 0;
+  min-height: clamp(2.55rem, 5vw, 3.75rem);
+  padding: .17rem;
+  border: 1px solid var(--rule);
+  border-radius: .35rem;
+  background: var(--inset);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.calendar-day:hover:not(:disabled) { border-color: var(--periwinkle); }
+.calendar-day[aria-pressed="true"] { border-color: var(--citron); outline: 1px solid var(--citron); outline-offset: -3px; }
+.calendar-day[data-level="1"] { background: #302b52; }
+.calendar-day[data-level="2"] { background: #393264; }
+.calendar-day[data-level="3"] { background: #494170; }
+.calendar-day[data-level="4"] { background: #403f50; border-color: #82964e; }
+.calendar-day:disabled { opacity: .42; cursor: default; }
+.calendar-count { color: var(--citron); font-size: .67rem; line-height: 1; }
+.calendar-detail {
+  display: block;
+  margin-top: .7rem;
+  padding: .7rem .85rem;
+  border-radius: .5rem;
+  background: var(--inset);
+  color: var(--citron);
+  font-size: .88rem;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 430px) {
+  .calendar-weekdays, .calendar-grid { gap: .2rem; }
+  .calendar-weekdays, .calendar-count { font-size: .63rem; }
+  .calendar-day { font-size: .82rem; }
 }

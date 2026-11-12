@@ -115,6 +115,13 @@ class RefreshTests(unittest.TestCase):
                 refresh.main()
         self.assert_preserved()
 
+    def test_calendar_gap_keeps_previous_snapshot(self):
+        calendar = calendar_html().replace('data-date="2026-01-02"', 'data-date="2025-12-31"')
+        with patch.object(refresh, 'fetch', side_effect=[json.dumps([]), calendar]):
+            with self.assertRaisesRegex(RuntimeError, 'Public calendar has gaps'):
+                refresh.main()
+        self.assert_preserved()
+
     # Value: protects=the account identity before publication; fails_when=a different
     # account replaces the last valid snapshot; why_new=identity guard was added;
     # seam=none; no_claim=live identity-provider availability.
