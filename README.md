@@ -1,8 +1,8 @@
 # Soubhik Biswas · Lead Frontend Engineer
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./hero-mobile.svg?v=e73cc68d2dac" />
-  <img src="./hero.svg?v=569940bda1f8" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer. A bar chart plots publicly visible GitHub contributions over the latest 13 weeks." />
+  <source media="(max-width: 600px)" srcset="./hero-mobile.svg?v=34f9485be0a7" />
+  <img src="./hero.svg?v=2641b194e847" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer. A bar chart plots publicly visible GitHub contributions over the latest 13 weeks." />
 </picture>
 
 **[Explore the interactive dashboard](https://soubhik-biswas.github.io/soubhik-biswas/)** · Filter contribution history, inspect chart points, and compare public code.
@@ -15,18 +15,18 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 ## Contribution trends
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./activity-mobile.svg?v=ac1eeb2aa515" />
-  <img src="./activity.svg?v=4fb737852768" width="100%" alt="Contribution totals and active days in two 30-day windows, with a weekday breakdown over the latest 13 weeks." />
+  <source media="(max-width: 600px)" srcset="./activity-mobile.svg?v=83d31453bdcc" />
+  <img src="./activity.svg?v=032659ed6fc9" width="100%" alt="Contribution totals and active days in two 30-day windows, with a weekday breakdown over the latest 13 weeks." />
 </picture>
 
 <!-- activity-data:start -->
 
 | Public GitHub activity | Contributions | Active days |
 | --- | ---: | ---: |
-| 2026-10-14 to 2026-11-12 | **3,388** | **24 / 30** |
-| 2026-09-14 to 2026-10-13 | 542 | 6 / 30 |
+| 2026-10-14 to 2026-11-12 | **3,085** | **24 / 30** |
+| 2026-09-14 to 2026-10-13 | 16 | 4 / 30 |
 
-**4,059** contributions across the displayed calendar · **44** active days · **23**-day longest streak
+**3,194** contributions across the displayed calendar · **39** active days · **23**-day longest streak
 
 <!-- activity-data:end -->
 
@@ -48,8 +48,8 @@ I lead frontend engineering at **Deccan AI**, building shared design systems, sc
 [Browse the public data snapshot](assets/public-data.json) · [Refresh workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=de566e7cdbb3" />
-  <img src="./about-life.svg?v=63c17e616b25" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
+  <source media="(max-width: 600px)" srcset="./about-life-mobile.svg?v=3224d57322d5" />
+  <img src="./about-life.svg?v=9ba6103d8e53" width="100%" alt="Shared frontend foundations: design tokens, themes and React components supporting onboarding, forms and assessment workflows. Personal interests: prototyping, learning and music." />
 </picture>
 
 My work connects reusable React components, configurable themes and interactive documentation with the details of each product. That includes shared validation, coding interfaces, authentication, browser extensions and resumable uploads.
@@ -77,7 +77,7 @@ React · Next.js · TypeScript · JavaScript · Redux Toolkit · SCSS · HTML ·
 
 ## Contribution calendar
 
-<img src="./contribution-city.svg?v=7ad6b4f1f03b" width="100%" alt="Isometric view of the GitHub contribution calendar. Each column represents one displayed day, and height encodes GitHub’s five activity levels." />
+<img src="./contribution-city.svg?v=db58a2175cdc" width="100%" alt="Isometric view of the GitHub contribution calendar. Each column represents one displayed day, and height encodes GitHub’s five activity levels." />
 
 <picture>
   <source media="(max-width: 600px)" srcset="./connect-mobile.svg?v=55e70c53f346" />
