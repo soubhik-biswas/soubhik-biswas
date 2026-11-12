@@ -158,7 +158,7 @@ def nice_ceiling(peak, ticks=4):
 
 
 CSS = '''
-text{font-family:Display}.m{font-family:Mono;font-weight:500}
+text{font-family:Display,"Space Grotesk",system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}.m{font-family:Mono,"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:500}
 .in{animation:in .8s cubic-bezier(.2,.8,.2,1) both}
 .fade{animation:fade .9s ease both}
 .gy{transform-box:fill-box;transform-origin:50% 100%;animation:gy .9s cubic-bezier(.2,.8,.2,1) both}
