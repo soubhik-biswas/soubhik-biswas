@@ -3,67 +3,95 @@
   "source": "https://github.com/soubhik-biswas",
   "repos": [
     {
-      "name": "awaketab",
-      "url": "https://github.com/soubhik-biswas/awaketab",
-      "stars": 1,
-      "forks": 0,
-      "language": "TypeScript"
-    },
-    {
       "name": "bucketpeek",
       "url": "https://github.com/soubhik-biswas/bucketpeek",
       "stars": 0,
       "forks": 0,
-      "language": "TypeScript"
+      "language": "TypeScript",
+      "languages": {
+        "TypeScript": 1373098,
+        "CSS": 14813,
+        "Shell": 8354,
+        "Dockerfile": 2198,
+        "JavaScript": 559
+      }
     },
     {
       "name": "dom-scanner-pro-site",
       "url": "https://github.com/soubhik-biswas/dom-scanner-pro-site",
       "stars": 0,
       "forks": 0,
-      "language": "HTML"
+      "language": "HTML",
+      "languages": {
+        "HTML": 34505
+      }
     },
     {
       "name": "oibuddy-vscode",
       "url": "https://github.com/soubhik-biswas/oibuddy-vscode",
       "stars": 0,
       "forks": 0,
-      "language": null
+      "language": null,
+      "languages": {}
     },
     {
       "name": "passlore",
       "url": "https://github.com/soubhik-biswas/passlore",
       "stars": 0,
       "forks": 0,
-      "language": "TypeScript"
+      "language": "TypeScript",
+      "languages": {
+        "TypeScript": 419540,
+        "HTML": 59319,
+        "CSS": 33941,
+        "JavaScript": 2875
+      }
     },
     {
       "name": "prismwink",
       "url": "https://github.com/soubhik-biswas/prismwink",
       "stars": 0,
       "forks": 0,
-      "language": "TypeScript"
+      "language": "TypeScript",
+      "languages": {
+        "TypeScript": 179170,
+        "CSS": 4840,
+        "JavaScript": 2520,
+        "HTML": 478
+      }
     },
     {
       "name": "sealpane",
       "url": "https://github.com/soubhik-biswas/sealpane",
       "stars": 0,
       "forks": 0,
-      "language": "TypeScript"
+      "language": "TypeScript",
+      "languages": {
+        "TypeScript": 86198,
+        "CSS": 12239,
+        "JavaScript": 11358,
+        "HTML": 3675
+      }
     },
     {
       "name": "sealpane-server",
       "url": "https://github.com/soubhik-biswas/sealpane-server",
       "stars": 0,
       "forks": 0,
-      "language": "TypeScript"
+      "language": "TypeScript",
+      "languages": {
+        "TypeScript": 22128
+      }
     },
     {
       "name": "soubhik-biswas",
       "url": "https://github.com/soubhik-biswas/soubhik-biswas",
       "stars": 1,
       "forks": 0,
-      "language": "Python"
+      "language": "Python",
+      "languages": {
+        "Python": 44213
+      }
     }
   ],
   "account": {
@@ -73,13 +101,12 @@
     "created_at": "2019-08-25T15:58:15Z"
   },
   "languages": {
-    "TypeScript": 5639504,
-    "CSS": 712864,
-    "Astro": 431571,
-    "JavaScript": 151690,
-    "HTML": 98778,
+    "TypeScript": 2080134,
+    "CSS": 65833,
     "Shell": 8354,
     "Dockerfile": 2198,
+    "JavaScript": 17312,
+    "HTML": 97977,
     "Python": 44213
   },
   "days": [
@@ -1690,17 +1717,17 @@
     },
     {
       "date": "2026-09-26",
-      "level": 2,
+      "level": 1,
       "count": 157
     },
     {
       "date": "2026-09-27",
-      "level": 2,
+      "level": 1,
       "count": 158
     },
     {
       "date": "2026-09-28",
-      "level": 2,
+      "level": 1,
       "count": 155
     },
     {
@@ -1825,17 +1852,17 @@
     },
     {
       "date": "2026-10-23",
-      "level": 2,
+      "level": 1,
       "count": 120
     },
     {
       "date": "2026-10-24",
-      "level": 2,
+      "level": 1,
       "count": 188
     },
     {
       "date": "2026-10-25",
-      "level": 3,
+      "level": 2,
       "count": 262
     },
     {
@@ -1850,7 +1877,7 @@
     },
     {
       "date": "2026-10-28",
-      "level": 2,
+      "level": 1,
       "count": 161
     },
     {
@@ -1860,12 +1887,12 @@
     },
     {
       "date": "2026-10-30",
-      "level": 2,
+      "level": 1,
       "count": 206
     },
     {
       "date": "2026-10-31",
-      "level": 2,
+      "level": 1,
       "count": 213
     },
     {
@@ -1900,17 +1927,17 @@
     },
     {
       "date": "2026-11-07",
-      "level": 2,
+      "level": 1,
       "count": 166
     },
     {
       "date": "2026-11-08",
-      "level": 3,
+      "level": 2,
       "count": 259
     },
     {
       "date": "2026-11-09",
-      "level": 4,
+      "level": 2,
       "count": 440
     },
     {
@@ -1926,8 +1953,8 @@
     {
       "date": "2026-11-12",
       "level": 4,
-      "count": 461
+      "count": 937
     }
   ],
-  "contributions": 3583
+  "contributions": 4059
 }

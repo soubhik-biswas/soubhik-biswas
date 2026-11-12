@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Passlore",
+    "slug": "passlore",
+    "url": "https://passlore.com/",
+    "summary": "Generates passwords, passphrases, and PINs directly in the browser.",
+    "detail": "Choose a recipe for a password manager, Wi-Fi, a PIN, or a site with specific rules."
+  },
+  {
+    "name": "AwakeTab",
+    "slug": "awaketab",
+    "url": "https://awaketab.com/",
+    "summary": "Keeps the display awake during a timed browser session.",
+    "detail": "Built around the Screen Wake Lock API, with clock faces, timers, and an embeddable widget."
+  },
+  {
+    "name": "Shareroom",
+    "slug": "share",
+    "url": "https://shareroom.app/",
+    "summary": "A shared room for working together in the browser.",
+    "detail": "Open a room to share and preview work from one link."
+  }
+]

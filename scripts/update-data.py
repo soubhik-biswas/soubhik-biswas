@@ -2,7 +2,7 @@
 import json
 import re
 import urllib.request
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -54,20 +54,32 @@ def main():
     days = sorted(calendar.days.values(), key=lambda day: day['date'])
     if len(days) < 300 or any(day['count'] is None for day in days):
         raise RuntimeError('Public calendar format changed; keeping the previous snapshot')
+    dates = [date.fromisoformat(day['date']) for day in days]
+    if any((right-left).days != 1 for left, right in zip(dates, dates[1:])):
+        raise RuntimeError('Public calendar has gaps; keeping the previous snapshot')
     account = json.loads(fetch(f'https://api.github.com/users/{USER}'))
     if account['id'] != 54506603:
         raise RuntimeError('Public account identity changed; keeping the previous snapshot')
     languages = {}
+    repository_data = []
     for repo in repos:
         breakdown = json.loads(fetch(f'https://api.github.com/repos/{USER}/{repo["name"]}/languages'))
         for language, amount in breakdown.items():
-            if not isinstance(amount, int) or amount < 0:
+            if type(amount) is not int or amount < 0:
                 raise ValueError('Invalid public language byte count')
             languages[language] = languages.get(language, 0) + amount
+        repository_data.append({
+            'name': repo['name'],
+            'url': repo['html_url'],
+            'stars': repo['stargazers_count'],
+            'forks': repo.get('forks_count', 0),
+            'language': repo['language'],
+            'languages': breakdown,
+        })
     snapshot = {
         'updated': datetime.now(timezone.utc).strftime('%Y-%m-%d'),
         'source': f'https://github.com/{USER}',
-        'repos': [{'name': r['name'], 'url': r['html_url'], 'stars': r['stargazers_count'], 'forks': r.get('forks_count', 0), 'language': r['language']} for r in repos],
+        'repos': repository_data,
         'account': {key: account[key] for key in ['id', 'followers', 'following', 'created_at']},
         'languages': languages,
         'days': days,

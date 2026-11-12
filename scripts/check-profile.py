@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 import xml.etree.ElementTree as ET
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,13 +13,22 @@ data = json.loads((ROOT / 'assets/public-data.json').read_text())
 assert 300 <= len(data['days']) <= 372
 assert all(isinstance(d['count'], int) and d['count'] >= 0 and d['level'] in range(5) for d in data['days'])
 assert data['contributions'] == sum(d['count'] for d in data['days'])
+dates = [date.fromisoformat(day['date']) for day in data['days']]
+assert all((right-left).days == 1 for left, right in zip(dates, dates[1:]))
 assert len({r['name'] for r in data['repos']}) == len(data['repos'])
 assert set(data['account']) == {'id', 'followers', 'following', 'created_at'}
 assert data['account']['id'] == 54506603
 assert all(type(data['account'][key]) is int and data['account'][key] >= 0 for key in ('followers','following'))
 assert all(type(amount) is int and amount >= 0 for amount in data['languages'].values())
+if all('languages' in repo for repo in data['repos']):
+    totals = {}
+    for repo in data['repos']:
+        for language, amount in repo['languages'].items():
+            assert type(amount) is int and amount >= 0
+            totals[language] = totals.get(language, 0) + amount
+    assert totals == data['languages']
 files = list(ROOT.glob('*.svg'))
-panels = ['hero', 'about-life', 'stack', 'id-dashboard', 'connect', 'project-awaketab', 'project-bucketpeek', 'project-prismwink']
+panels = ['hero', 'about-life', 'stack', 'activity', 'codebase', 'connect']
 expected = {name+suffix+'.svg' for name in panels for suffix in ('', '-mobile')} | {'contribution-city.svg'}
 assert {path.name for path in files} == expected, 'Missing or unexpected portfolio panels'
 for path in files:
@@ -28,6 +38,8 @@ for path in files:
     assert root.find(SVG + 'title') is not None and root.find(SVG + 'desc') is not None
     assert 'prefers-reduced-motion' in source
     assert 'data:font/woff2;base64,' in source
+    if path.stem in {'hero', 'hero-mobile', 'activity', 'activity-mobile', 'codebase', 'codebase-mobile'}:
+        assert root.find('.//' + SVG + 'image') is None, f'Unexpected raster in {path.name}'
     ids = [e.attrib['id'] for e in root.iter() if 'id' in e.attrib]
     assert len(set(ids)) == len(ids), f'Duplicate identifiers in {path.name}'
     for element in root.iter():
@@ -41,7 +53,18 @@ for path in files:
 readme = (ROOT / 'README.md').read_text()
 for image in re.findall(r'(?:src|srcset)="(\./[^"?]+)', readme):
     assert (ROOT / image).is_file(), f'Broken README image {image}'
-assert readme.count('<picture>') == 8
+assert readme.count('<picture>') == len(panels)
+assert readme.count('<!-- activity-data:start -->') == 1
+assert readme.count('<!-- activity-data:end -->') == 1
+assert f'{sum(day["count"] for day in data["days"][-30:]):,}' in readme
+repository_data = readme.split('<!-- repository-data:start -->')[1].split('<!-- repository-data:end -->')[0]
+assert re.findall(r'\*\*([\d,]+)\*\*', repository_data) == [
+    f'{len(data["repos"]):,}',
+    f'{sum(repo["stars"] for repo in data["repos"]):,}',
+    f'{sum(repo["forks"] for repo in data["repos"]):,}',
+    f'{data["account"]["followers"]:,}',
+]
+assert 'id-dashboard' not in readme and 'avatar.jpg' not in readme
 for filename, version in re.findall(r'\./([\w-]+\.svg)\?v=([\w-]+)', readme):
     assert version == hashlib.sha256((ROOT / filename).read_bytes()).hexdigest()[:12], f'Stale image cache key: {filename}'
 assert 'mailto:' not in readme
@@ -49,9 +72,12 @@ assert 'email' not in json.loads((ROOT / 'profile.json').read_text())
 for path in [ROOT/'README.md', ROOT/'profile.json', ROOT/'assets/public-data.json', *files]:
     assert not re.search(r'@(?:gmail|outlook|yahoo)\.',path.read_text(), re.I), f'Personal contact address in {path.name}'
 assert 'https://www.linkedin.com/in/biswas-soubhik/' in readme
-for project in re.findall(r'https://github.com/soubhik-biswas/([\w-]+)\)', readme):
-    if project != 'soubhik-biswas':
-        assert project in {r['name'] for r in data['repos']}, f'Project is not public: {project}'
+projects = json.loads((ROOT / 'docs/projects.json').read_text())
+feature_rows = readme.split('<!-- featured-projects:start -->')[1].split('<!-- featured-projects:end -->')[0]
+assert re.findall(r'^\| \[([^\]]+)\]\((https://[^)]+)\)', feature_rows, re.M) == [
+    (project['name'], project['url']) for project in projects
+]
+assert 'https://soubhik-biswas.github.io/soubhik-biswas/' in readme
 spec = importlib.util.spec_from_file_location('refresh', ROOT / 'scripts/update-data.py')
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
