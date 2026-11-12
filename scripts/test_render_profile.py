@@ -23,7 +23,8 @@ def marks(root, name):
 
 class AnalyticsTests(unittest.TestCase):
     def capture_panel(self, renderer, data, **patches):
-        with patch.object(render, 'DATA', data), patch.object(render, 'panel') as output:
+        profile = {**render.PROFILE, 'hidden_repos': patches.pop('hidden_repos', [])}
+        with patch.object(render, 'DATA', data), patch.object(render, 'PROFILE', profile), patch.object(render, 'panel') as output:
             for name, value in patches.items():
                 stack = patch.object(render, name, value)
                 stack.start()
@@ -172,9 +173,28 @@ class AnalyticsTests(unittest.TestCase):
         self.assertEqual((weeks[0]['commits'], weeks[0]['additions'], weeks[0]['deletions']), (3, 400, 100))
         self.assertEqual((weeks[1]['commits'], weeks[1]['additions'], weeks[1]['deletions']), (4, 0, 800))
         root = self.capture_panel(render.rhythm, data, COMMIT_ACTIVITY=commits)
-        added, removed = marks(root, 'added-bar'), marks(root, 'removed-bar')
-        self.assertEqual((len(added), len(removed)), (1, 2))
-        self.assertAlmostEqual(float(added[0].get('height')) * 2, max(float(bar.get('height')) for bar in removed))
+        heights = [float(bar.get('height')) for bar in marks(root, 'commit-bar')]
+        self.assertEqual(len(heights), 2)
+        self.assertAlmostEqual(heights[0] / heights[1], 3 / 4)
+        self.assertAlmostEqual(heights[1], 126)
+
+    # Value: protects=hidden repositories leave every code chart, not just one;
+    # fails_when=a hidden repository keeps a block, a label or its language bytes.
+    def test_hidden_repositories_leave_the_code_charts(self):
+        data = copy.deepcopy(render.DATA)
+        data['languages'] = {'TypeScript': 900, 'CSS': 100, 'Go': 40}
+        data['repos'] = [
+            {'name': 'kept', 'languages': {'TypeScript': 300, 'CSS': 100}},
+            {'name': 'internal-tool', 'languages': {'TypeScript': 600, 'Go': 40}},
+        ]
+        root = self.capture_panel(render.codebase, data, hidden_repos=['internal-tool'])
+        labels = [element.text for element in root.iter('text')]
+        self.assertNotIn('internal-tool', labels)
+        self.assertNotIn('Go', labels)
+        self.assertEqual(labels[labels.index('TypeScript') + 1], '75.0%')
+        self.assertEqual(len(marks(root, 'cell')), 1)
+        root = self.capture_panel(render.codebase, data)
+        self.assertEqual(len(marks(root, 'cell')), 2)
 
     def test_readme_sections_are_replaced_exactly_once(self):
         names = [name for name, _ in render.SECTIONS]

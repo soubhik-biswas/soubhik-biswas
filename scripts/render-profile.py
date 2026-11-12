@@ -281,9 +281,27 @@ def weekly_commits():
     return weeks
 
 
+def code_repos():
+    """Public repositories shown in the code charts: everything except profile.json's hidden_repos."""
+    hidden = set(PROFILE.get('hidden_repos', ()))
+    return [repo for repo in DATA['repos'] if repo['name'] not in hidden]
+
+
+def code_languages():
+    """Language bytes across the repositories shown in the code charts."""
+    hidden = set(PROFILE.get('hidden_repos', ()))
+    totals = dict(DATA['languages'])
+    for repo in DATA['repos']:
+        if repo['name'] in hidden:
+            for language, amount in repo.get('languages', {}).items():
+                totals[language] = totals.get(language, 0) - amount
+    return {language: amount for language, amount in totals.items() if amount > 0}
+
+
 def language_categories():
-    ranked = sorted(DATA['languages'], key=lambda name: (-DATA['languages'][name], name))
-    return [name for name in ranked[:5] if DATA['languages'][name] > 0]
+    languages = code_languages()
+    ranked = sorted(languages, key=lambda name: (-languages[name], name))
+    return ranked[:5]
 
 
 def language_segments(breakdown, categories):
@@ -662,6 +680,10 @@ def pulse(mobile=False):
         ('Longest streak', f'{metrics["longest"]:,}', 'active days in a row', 'days'),
         ('Busiest day', f'{busiest["count"]:,}', long_date(busiest['date']) if busiest['count'] else 'No activity yet', ''),
     )
+    inventory = repository_inventory()
+    if inventory:
+        tiles = tiles[:3] + (('Repositories', f'{inventory["total"]:,}',
+                              f'{inventory["public"]} public, {inventory["private"] + inventory["internal"]} private', ''),)
     tile_width = 210 if mobile else 222
     for index, (label, value, note, suffix) in enumerate(tiles):
         column, row = (index % 2, index // 2) if mobile else (index, 0)
@@ -717,42 +739,41 @@ def bubble_matrix(width):
     return body, label_y + 40
 
 
-def commit_volume(width):
+def commit_cadence(width):
+    """Commits per week on public default branches for the latest 13 weeks."""
     totals = commit_totals()
     weeks = weekly_commits()
-    body = block_title('Commit volume', f'Default branches of {COMMIT_ACTIVITY["repositories"]} public repositories, past 12 months')
-    stats = ((f'{totals["commits"]:,}', 'commits'), (f'+{compact(totals["additions"])}', 'lines added'), (f'−{compact(totals["deletions"])}', 'lines removed'))
+    counts = [week['commits'] for week in weeks]
+    body = block_title('Commit cadence', f'Commits per week on the default branches of {COMMIT_ACTIVITY["repositories"]} public repositories')
+    stats = ((f'{totals["commits"]:,}', 'commits in 12 months'), (f'{sum(counts):,}', 'in the last 13 weeks'),
+             (f'{sum(value > 0 for value in counts)} of {len(counts)}', 'weeks with commits'))
     for index, (value, label) in enumerate(stats):
         x = index * (width / 3)
         body += anim(text(x, 92, value, 26, INK, 700, spacing=-.5) + text(x, 112, label, 12, MUTED, 400), 'in', .2 + index * .1)
-    peak = max([1] + [max(week['additions'], week['deletions']) for week in weeks])
-    ceiling, _ = nice_ceiling(peak, 4)
-    left, centre, reach = 52, 214, 62
+    ceiling, step = nice_ceiling(max([1] + counts))
+    left, top, base = 52, 150, 276
     pitch = (width - left) / 13
-    for value, y in ((ceiling, centre - reach), (0, centre), (-ceiling, centre + reach)):
-        body += f'<path d="M{left} {y}H{width}" stroke="{LINE}" stroke-opacity="{1 if not value else .55}"/>'
-        label = '0' if not value else ('+' if value > 0 else '−') + compact(abs(value))
-        body += text(left - 8, y + 4, label, 11, DIM, anchor='end', mono=True)
+    value = 0
+    while value <= ceiling:
+        y = base - (base - top) * value / ceiling
+        body += f'<path d="M{left} {y:g}H{width}" stroke="{LINE}" stroke-opacity="{1 if not value else .55}"/>'
+        body += text(left - 8, y + 4, f'{value:,}', 11, DIM, anchor='end', mono=True)
+        value += step
     for index, week in enumerate(weeks):
-        x = left + index * pitch + (pitch - 14) / 2
-        span = f'{short_date(week["start"])} to {short_date(week["end"])}'
-        if week['additions']:
-            height = max(1.5, reach * week['additions'] / ceiling)
-            bar = rect(x, centre - height - 1, 14, height, CITRON, 'none', 3, 'class="added-bar"')
+        if week['commits']:
+            x = left + index * pitch + (pitch - 16) / 2
+            height = max(1.5, (base - top) * week['commits'] / ceiling)
+            latest = index == len(weeks) - 1
+            bar = rect(x, base - height, 16, height, CITRON if latest else VIOLET, 'none', 3, 'class="commit-bar"')
             body += tip(anim(f'<g class="glint" style="animation-delay:{4.5 + index * .12:.2f}s">{bar}</g>', 'gy', .5 + index * .05),
-                        f'{span}: {week["additions"]:,} lines added in {week["commits"]:,} commits')
-        if week['deletions']:
-            height = max(1.5, reach * week['deletions'] / ceiling)
-            bar = rect(x, centre + 1, 14, height, PINK, 'none', 3, 'class="removed-bar"')
-            body += tip(anim(f'<g class="glint" style="animation-delay:{4.5 + index * .12:.2f}s">{bar}</g>', 'gd', .5 + index * .05),
-                        f'{span}: {week["deletions"]:,} lines removed in {week["commits"]:,} commits')
-    label_y = centre + reach + 24
+                        f'{short_date(week["start"])} to {short_date(week["end"])}: {week["commits"]:,} commits')
+    label_y = base + 24
     for column in (0, 4, 8, 12):
         if column < len(weeks):
             body += text(left + column * pitch + pitch / 2, label_y, short_date(weeks[column]['start']), 11, DIM, anchor='middle', mono=True)
     legend_y = label_y + 32
-    body += rect(0, legend_y - 9, 10, 10, CITRON, 'none', 2) + text(16, legend_y, 'Lines added per week', 12, MUTED, 400)
-    body += rect(166, legend_y - 9, 10, 10, PINK, 'none', 2) + text(182, legend_y, 'Lines removed', 12, MUTED, 400)
+    body += rect(0, legend_y - 9, 10, 10, VIOLET, 'none', 2) + text(16, legend_y, 'Commits in a week', 12, MUTED, 400)
+    body += rect(140, legend_y - 9, 10, 10, CITRON, 'none', 2) + text(156, legend_y, 'Latest week', 12, MUTED, 400)
     return body, legend_y + 8
 
 
@@ -762,18 +783,18 @@ def rhythm(mobile=False):
     metrics = activity_metrics()
     totals = commit_totals()
     left, left_height = bubble_matrix(COLUMN)
-    right, right_height = commit_volume(COLUMN)
+    right, right_height = commit_cadence(COLUMN)
     if mobile:
         body = group(PAD, 40, left) + group(PAD, 40 + left_height + 40, right)
         height = 40 + left_height + 40 + right_height + PAD
     else:
         body = group(PAD, 40, left) + f'<path d="M500 40V{40 + max(left_height, right_height) - 8}" stroke="{LINE}"/>' + group(532, 40, right)
         height = 40 + max(left_height, right_height) + PAD
-    panel('rhythm-mobile.svg' if mobile else 'rhythm.svg', width, height, 'Weekly rhythm and commit volume',
+    panel('rhythm-mobile.svg' if mobile else 'rhythm.svg', width, height, 'Weekly rhythm and commit cadence',
           f'Bubble chart of daily contributions by weekday for the 13 weeks from {days[0]["date"]} to {days[-1]["date"]}. '
           f'Active days by weekday starting Monday: {", ".join(map(str, metrics["weekdays"]))}. '
-          f'Commit snapshot: {totals["commits"]:,} commits, {totals["additions"]:,} lines added and {totals["deletions"]:,} lines removed '
-          f'on the default branches of {COMMIT_ACTIVITY["repositories"]} public repositories.', body)
+          f'Commit snapshot: {totals["commits"]:,} commits on the default branches of {COMMIT_ACTIVITY["repositories"]} public repositories '
+          f'in the past 12 months. Commits per week over the same 13 weeks: {", ".join(str(week["commits"]) for week in weekly_commits())}.', body)
 
 
 def months(mobile=False):
@@ -821,7 +842,7 @@ def repository_inventory():
 
 def treemap(width):
     categories = language_categories()
-    repos = sorted(((repo, sum(repo.get('languages', {}).values())) for repo in DATA['repos']), key=lambda item: -item[1])
+    repos = sorted(((repo, sum(repo.get('languages', {}).values())) for repo in code_repos()), key=lambda item: -item[1])
     repos = [(repo, size) for repo, size in repos if size]
     total = sum(size for _, size in repos)
     body = block_title('Where the code lives', f'{len(repos)} public repositories, sized by detected code bytes')
@@ -854,7 +875,7 @@ def treemap(width):
 
 def language_list(width):
     categories = language_categories()
-    aggregate = language_segments(DATA['languages'], categories)
+    aggregate = language_segments(code_languages(), categories)
     total = sum(amount for _, amount, _ in aggregate)
     body = block_title('Languages', 'Share of code bytes across public repositories')
     if not aggregate:
@@ -889,7 +910,7 @@ def language_list(width):
 def codebase(mobile=False):
     width = 500 if mobile else 1000
     categories = language_categories()
-    aggregate = language_segments(DATA['languages'], categories)
+    aggregate = language_segments(code_languages(), categories)
     total = sum(amount for _, amount, _ in aggregate)
     left, left_height = treemap(COLUMN)
     right, right_height = language_list(COLUMN)
@@ -901,7 +922,7 @@ def codebase(mobile=False):
         height = 40 + max(left_height, right_height) + PAD
     summary = '; '.join(f'{name} {amount / total:.1%}' for name, amount, _ in aggregate) or 'no language bytes in this snapshot'
     inventory = repository_inventory()
-    description = f'{len(DATA["repos"])} owned public repositories, excluding forks. Share of code bytes: {summary}.'
+    description = f'{len(code_repos())} owned public repositories, excluding forks. Share of code bytes: {summary}.'
     if inventory:
         description += f' {inventory["total"]} owned repositories in total: {inventory["public"]} public and {inventory["private"] + inventory["internal"]} private.'
     panel('codebase-mobile.svg' if mobile else 'codebase.svg', width, height, 'Code across public repositories', description, body)
@@ -1112,19 +1133,18 @@ def daily_activity():
 
 def repository_summary():
     inventory = repository_inventory()
-    repos = DATA['repos']
-    line = f'**{len(repos):,}** public repositories in this snapshot, excluding forks.'
+    line = f'**{len(DATA["repos"]):,}** public repositories in this snapshot, excluding forks.'
     if inventory:
         line = (f'**{inventory["total"]:,}** owned repositories as of {inventory["updated"]} IST: **{inventory["public"]:,}** public and '
-                f'**{inventory["private"] + inventory["internal"]:,}** private. The charts above cover the public ones.')
-    return line
+                f'**{inventory["private"] + inventory["internal"]:,}** private.')
+    return f'{line} The charts above cover {len(code_repos())} public repositories.'
 
 
 SECTIONS = (
     ('hero', lambda: picture('hero', f'{PROFILE["name"]}, {PROFILE["role"]} at {PROFILE["company"]}. A design-tool view of the name with an inspect panel listing team, focus, location and stack, and a bar chart of GitHub contributions over the latest 13 weeks.')),
     ('projects', projects_section),
     ('pulse', lambda: picture('pulse', 'Engineering pulse. Four totals for the past 12 months, a bar chart of daily contributions over the latest 13 weeks with a 7-day average, and a comparison of the latest two 30-day periods.')
-     + '\n' + picture('rhythm', 'Weekly rhythm and commit volume. A bubble chart of contributions by weekday across 13 weeks, and weekly lines added and removed on public default branches.')),
+     + '\n' + picture('rhythm', 'Weekly rhythm and commit cadence. A bubble chart of contributions by weekday across 13 weeks, and a bar chart of commits per week on public default branches.')),
     ('months', lambda: picture('months', 'Bar chart of contributions in each month of the calendar.') + '\n\n' + monthly_table()),
     ('activity-data', activity_summary),
     ('daily-activity', daily_activity),

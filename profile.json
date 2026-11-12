@@ -5,5 +5,8 @@
   "company": "Deccan AI",
   "company_location": "Hyderabad, Telangana",
   "home": "Kolkata / Krishnanagar, India",
-  "linkedin": "https://www.linkedin.com/in/biswas-soubhik/"
+  "linkedin": "https://www.linkedin.com/in/biswas-soubhik/",
+  "hidden_repos": [
+    "bucketpeek"
+  ]
 }

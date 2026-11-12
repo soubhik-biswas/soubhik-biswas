@@ -1,6 +1,6 @@
 <!-- hero:start -->
 
-<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero.svg?v=1e0410354cec"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero-mobile.svg?v=1d7f9c5c7f54" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero.svg?v=1e0410354cec" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. A design-tool view of the name with an inspect panel listing team, focus, location and stack, and a bar chart of GitHub contributions over the latest 13 weeks." /></picture></a>
+<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero.svg?v=1e0410354cec"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero-mobile.svg?v=e9e9219d4ea9" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero.svg?v=1e0410354cec" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. A design-tool view of the name with an inspect panel listing team, focus, location and stack, and a bar chart of GitHub contributions over the latest 13 weeks." /></picture></a>
 
 <!-- hero:end -->
 
@@ -27,8 +27,8 @@ Six things I have designed and built. Each card opens the product.
 
 <!-- pulse:start -->
 
-<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse.svg?v=4e72f6289c21"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse-mobile.svg?v=dca13ccdbbb3" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse.svg?v=4e72f6289c21" width="100%" alt="Engineering pulse. Four totals for the past 12 months, a bar chart of daily contributions over the latest 13 weeks with a 7-day average, and a comparison of the latest two 30-day periods." /></picture></a>
-<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm.svg?v=73de6bae8201"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm-mobile.svg?v=806f1fc44746" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm.svg?v=73de6bae8201" width="100%" alt="Weekly rhythm and commit volume. A bubble chart of contributions by weekday across 13 weeks, and weekly lines added and removed on public default branches." /></picture></a>
+<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse.svg?v=5445e43b2882"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse-mobile.svg?v=d8695d31a258" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse.svg?v=5445e43b2882" width="100%" alt="Engineering pulse. Four totals for the past 12 months, a bar chart of daily contributions over the latest 13 weeks with a 7-day average, and a comparison of the latest two 30-day periods." /></picture></a>
+<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm.svg?v=adc63713e539"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm-mobile.svg?v=c11ee6c8b724" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm.svg?v=adc63713e539" width="100%" alt="Weekly rhythm and commit cadence. A bubble chart of contributions by weekday across 13 weeks, and a bar chart of commits per week on public default branches." /></picture></a>
 
 <!-- pulse:end -->
 
@@ -181,13 +181,13 @@ Days with no contributions are left out. Commit and line counts cover the defaul
 
 <!-- codebase:start -->
 
-<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/codebase.svg?v=e81211b86767"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/codebase-mobile.svg?v=a6c57237e921" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/codebase.svg?v=e81211b86767" width="100%" alt="Code across public repositories. A treemap of repositories sized by code bytes, language shares, and a dot for every owned repository." /></picture></a>
+<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/codebase.svg?v=7c1aee34c25c"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/codebase-mobile.svg?v=2442ad17c04a" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/codebase.svg?v=7c1aee34c25c" width="100%" alt="Code across public repositories. A treemap of repositories sized by code bytes, language shares, and a dot for every owned repository." /></picture></a>
 
 <!-- codebase:end -->
 
 <!-- repository-data:start -->
 
-**65** owned repositories as of 2026-11-13 IST: **9** public and **56** private. The charts above cover the public ones.
+**65** owned repositories as of 2026-11-13 IST: **9** public and **56** private. The charts above cover 8 public repositories.
 
 <!-- repository-data:end -->
 
@@ -217,17 +217,15 @@ My work connects reusable React components, configurable themes and interactive 
 
 [Connect on LinkedIn](https://www.linkedin.com/in/biswas-soubhik/) · [Browse my repositories](https://github.com/soubhik-biswas?tab=repositories)
 
-I live in Kolkata / Krishnanagar, India. Deccan AI's office is in Hyderabad, Telangana.
-
 <details>
 <summary>Data sources and methodology</summary>
 <br />
 
 The [GitHub contribution calendar](https://github.com/users/soubhik-biswas/contributions) supplies the daily counts visible to signed-out visitors. The daily chart, weekly rhythm and weekly bars cover the latest 91 displayed days, and each week is seven consecutive displayed days. The two 30-day periods end on the latest calendar date and 30 days earlier. The latest day may be partial. A day counts as active when its contribution count is above zero. The 7-day average is the mean of a day and the six days before it. Streaks are bounded by the displayed calendar. Contributions can include several [types of activity](https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference).
 
-Language shares use [GitHub's repository language API](https://docs.github.com/en/rest/repos/repos#list-repository-languages) and cover owned public repositories, excluding forks. The treemap sizes each repository by its detected code bytes, and the strip along the bottom of each block shows that repository's own language mix. Detected bytes describe repository composition. The repository total comes from the dated [owner inventory snapshot](assets/repository-inventory.json).
+Language shares use [GitHub's repository language API](https://docs.github.com/en/rest/repos/repos#list-repository-languages) and cover owned public repositories, excluding forks. Repositories listed under `hidden_repos` in `profile.json` are left out of the code charts. The treemap sizes each repository by its detected code bytes, and the strip along the bottom of each block shows that repository's own language mix. Detected bytes describe repository composition. The repository total comes from the dated [owner inventory snapshot](assets/repository-inventory.json).
 
-Commit totals use the [public commit snapshot](assets/commit-activity.json). It counts primary-authored commits on owned public default branches by UTC author date. Lines added and removed are the totals GitHub reports for those commit diffs, so generated and vendored files are included.
+Commit totals use the [public commit snapshot](assets/commit-activity.json). It counts primary-authored commits on owned public default branches by UTC author date. The line counts in the month and day tables are the totals GitHub reports for those commit diffs, so generated and vendored files are included.
 
 Every panel is a self-contained SVG with a narrow-screen layout, a text description and reduced-motion support. A [daily workflow](https://github.com/soubhik-biswas/soubhik-biswas/actions/workflows/profile.yml) refreshes the [public data snapshot](assets/public-data.json) and rebuilds the panels.
 
