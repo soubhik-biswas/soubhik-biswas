@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12",
+  "updated": "2026-11-13",
   "source": "https://github.com/soubhik-biswas",
   "repos": [
     {
@@ -9,9 +9,9 @@
       "forks": 0,
       "language": "TypeScript",
       "languages": {
-        "TypeScript": 1874771,
-        "CSS": 52304,
-        "JavaScript": 49227,
+        "TypeScript": 2216958,
+        "CSS": 81134,
+        "JavaScript": 68413,
         "HTML": 801
       }
     },
@@ -103,7 +103,7 @@
       "forks": 0,
       "language": "Python",
       "languages": {
-        "Python": 103234
+        "Python": 104237
       }
     }
   ],
@@ -114,13 +114,13 @@
     "created_at": "2019-08-25T15:58:15Z"
   },
   "languages": {
-    "TypeScript": 3954905,
-    "CSS": 118137,
-    "JavaScript": 66539,
+    "TypeScript": 4297092,
+    "CSS": 146967,
+    "JavaScript": 85725,
     "HTML": 98778,
     "Shell": 8354,
     "Dockerfile": 2198,
-    "Python": 103234
+    "Python": 104237
   },
   "days": [
     {
@@ -1966,8 +1966,13 @@
     {
       "date": "2026-11-12",
       "level": 4,
-      "count": 961
+      "count": 962
+    },
+    {
+      "date": "2026-11-13",
+      "level": 1,
+      "count": 55
     }
   ],
-  "contributions": 3933
+  "contributions": 3989
 }
