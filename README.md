@@ -1,6 +1,6 @@
 <!-- hero:start -->
 
-<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero.svg?v=676096d38d03"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero-mobile.svg?v=18fd3c446a07" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero.svg?v=676096d38d03" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. A design-tool view of the name with an inspect panel listing team, focus, location and stack, and a bar chart of GitHub contributions over the latest 13 weeks." /></picture></a>
+<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero.svg?v=fe11fd60e719"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero-mobile.svg?v=892b4790542a" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/hero.svg?v=fe11fd60e719" width="100%" alt="Soubhik Biswas, Lead Frontend Engineer at Deccan AI. A design-tool view of the name with an inspect panel listing team, focus, location and stack, and a bar chart of GitHub contributions over the latest 13 weeks." /></picture></a>
 
 <!-- hero:end -->
 
@@ -27,8 +27,8 @@ Six things I have designed and built. Each card opens the product.
 
 <!-- pulse:start -->
 
-<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse.svg?v=5e9d978b0395"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse-mobile.svg?v=bc2bf16b0c94" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse.svg?v=5e9d978b0395" width="100%" alt="Engineering pulse. Four totals for the past 12 months, a bar chart of daily contributions over the latest 13 weeks with a 7-day average, and a comparison of the latest two 30-day periods." /></picture></a>
-<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm.svg?v=280e1508e697"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm-mobile.svg?v=364aeb1ad2bf" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm.svg?v=280e1508e697" width="100%" alt="Weekly rhythm and commit cadence. A bubble chart of contributions by weekday across 13 weeks, and a bar chart of commits per week on public default branches." /></picture></a>
+<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse.svg?v=0e211804eb7f"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse-mobile.svg?v=495c512296a0" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/pulse.svg?v=0e211804eb7f" width="100%" alt="Engineering pulse. Four totals for the past 12 months, a bar chart of daily contributions over the latest 13 weeks with a 7-day average, and a comparison of the latest two 30-day periods." /></picture></a>
+<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm.svg?v=7d4e271b6113"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm-mobile.svg?v=ccf471b6505b" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/rhythm.svg?v=7d4e271b6113" width="100%" alt="Weekly rhythm and commit cadence. A bubble chart of contributions by weekday across 13 weeks, and a bar chart of commits per week on public default branches." /></picture></a>
 
 <!-- pulse:end -->
 
@@ -40,11 +40,11 @@ Contribution and repository data refresh every day. Open any chart to hover over
 
 <!-- months:start -->
 
-<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/months.svg?v=dc8a51e7ce20"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/months-mobile.svg?v=a24e2a820f7c" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/months.svg?v=dc8a51e7ce20" width="100%" alt="Bar chart of contributions in each month of the calendar." /></picture></a>
+<a href="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/months.svg?v=bf9546292b9e"><picture><source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/months-mobile.svg?v=d405e91b51da" /><img src="https://raw.githubusercontent.com/soubhik-biswas/soubhik-biswas/main/panels/months.svg?v=bf9546292b9e" width="100%" alt="Bar chart of contributions in each month of the calendar." /></picture></a>
 
 | Month | Contributions | Active days | Commits | Lines added | Lines removed |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| November 2026 | 2,052 | 13 | — | — | — |
+| November 2026 | 2,053 | 13 | — | — | — |
 | October 2026 | 1,409 | 13 | 342 | 485,937 | 188,173 |
 | September 2026 | 435 | 8 | 424 | 669,447 | 366,006 |
 | August 2026 | 0 | 0 | 0 | 0 | 0 |
@@ -70,10 +70,10 @@ Contribution and repository data refresh every day. Open any chart to hover over
 
 | Public GitHub activity | Contributions | Active days |
 | --- | ---: | ---: |
-| 2026-10-15 to 2026-11-13 | **3,459** | **25 / 30** |
-| 2026-09-15 to 2026-10-14 | 415 | 6 / 30 |
+| 2026-10-16 to 2026-11-14 | **3,460** | **25 / 30** |
+| 2026-09-16 to 2026-10-15 | 415 | 6 / 30 |
 
-**3,989** contributions across the calendar, **45** active days, **24**-day longest streak.
+**3,990** contributions across the calendar, **45** active days, **24**-day longest streak.
 
 <!-- activity-data:end -->
 
@@ -82,7 +82,7 @@ Contribution and repository data refresh every day. Open any chart to hover over
 Days with no contributions are left out. Commit and line counts cover the default branches of 9 owned public repositories from 2025-11-09 through 2026-11-12 (UTC). A dash marks dates outside that snapshot.
 
 <details open>
-<summary>November 2026: 2,052 contributions</summary>
+<summary>November 2026: 2,053 contributions</summary>
 
 | Date | Contributions | Commits | Lines added | Lines removed |
 | --- | ---: | ---: | ---: | ---: |
@@ -98,7 +98,7 @@ Days with no contributions are left out. Commit and line counts cover the defaul
 | Nov 10 | 34 | 1 | 28 | 23 |
 | Nov 11 | 10 | 1 | 17 | 12 |
 | Nov 12 | 962 | 37 | 9,331 | 229,876 |
-| Nov 13 | 55 | — | — | — |
+| Nov 13 | 56 | — | — | — |
 
 </details>
 
