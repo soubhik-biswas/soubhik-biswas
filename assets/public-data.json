@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-21",
+  "updated": "2026-11-22",
   "source": "https://github.com/soubhik-biswas",
   "repos": [
     {
@@ -123,41 +123,6 @@
     "Python": 104237
   },
   "days": [
-    {
-      "date": "2025-11-16",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-11-17",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-11-18",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-11-19",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-11-20",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-11-21",
-      "level": 0,
-      "count": 0
-    },
-    {
-      "date": "2025-11-22",
-      "level": 0,
-      "count": 0
-    },
     {
       "date": "2025-11-23",
       "level": 0,
@@ -1695,17 +1660,17 @@
     },
     {
       "date": "2026-09-26",
-      "level": 1,
+      "level": 2,
       "count": 84
     },
     {
       "date": "2026-09-27",
-      "level": 1,
+      "level": 2,
       "count": 105
     },
     {
       "date": "2026-09-28",
-      "level": 1,
+      "level": 3,
       "count": 155
     },
     {
@@ -1825,22 +1790,22 @@
     },
     {
       "date": "2026-10-22",
-      "level": 1,
+      "level": 2,
       "count": 75
     },
     {
       "date": "2026-10-23",
-      "level": 1,
+      "level": 2,
       "count": 116
     },
     {
       "date": "2026-10-24",
-      "level": 1,
+      "level": 3,
       "count": 188
     },
     {
       "date": "2026-10-25",
-      "level": 2,
+      "level": 4,
       "count": 262
     },
     {
@@ -1855,22 +1820,22 @@
     },
     {
       "date": "2026-10-28",
-      "level": 1,
+      "level": 3,
       "count": 161
     },
     {
       "date": "2026-10-29",
-      "level": 1,
+      "level": 2,
       "count": 66
     },
     {
       "date": "2026-10-30",
-      "level": 1,
+      "level": 4,
       "count": 206
     },
     {
       "date": "2026-10-31",
-      "level": 1,
+      "level": 4,
       "count": 212
     },
     {
@@ -1905,17 +1870,17 @@
     },
     {
       "date": "2026-11-07",
-      "level": 1,
+      "level": 3,
       "count": 166
     },
     {
       "date": "2026-11-08",
-      "level": 2,
+      "level": 4,
       "count": 259
     },
     {
       "date": "2026-11-09",
-      "level": 2,
+      "level": 4,
       "count": 440
     },
     {
@@ -1975,9 +1940,14 @@
     },
     {
       "date": "2026-11-21",
-      "level": 2,
-      "count": 338
+      "level": 4,
+      "count": 409
+    },
+    {
+      "date": "2026-11-22",
+      "level": 3,
+      "count": 161
     }
   ],
-  "contributions": 4342
+  "contributions": 4574
 }
